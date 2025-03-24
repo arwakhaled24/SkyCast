@@ -10,15 +10,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed class NavigationRoutes(
     val route: String,
     val title: String,
-    val icon: ImageVector/*,
-    val paddingValues: PaddingValues*/
+    val icon: ImageVector
 ) {
     object HomeScreen :
         NavigationRoutes(route = "home", title = "Home",icon = Icons.Default.Home)
 
-    object  FavouritScreen/*(val paddingValues: PaddingValues)*/ :
+    object  FavouritScreen :
         NavigationRoutes(route = "favourites", title = "Favourites", icon = Icons.Default.Favorite)
 
-    object  SettingScreen /*(val paddingValues: PaddingValues)*/ :
+    object  SettingScreen  :
         NavigationRoutes(route = "settings", title = "Settings", icon = Icons.Default.Settings)
 }
