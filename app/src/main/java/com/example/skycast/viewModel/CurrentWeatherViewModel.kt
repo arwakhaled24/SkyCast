@@ -16,6 +16,7 @@ class CurrentWeatherViewModel(private val repository: WeatherRepository) : ViewM
 
     private var _currentWeather = MutableLiveData<CurrentWeatherRespond>()
     var currentWeather: LiveData<CurrentWeatherRespond> = _currentWeather
+
     private var _forecast = MutableLiveData<ForecasteRespond>()
     var forecast: LiveData<ForecasteRespond> = _forecast
 

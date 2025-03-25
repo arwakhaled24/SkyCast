@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,4 +74,12 @@ dependencies {
     //navigation
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+    //splashScreen
+    implementation("androidx.core:core-splashscreen:1.0.0")
+
+    //location
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
+
+
 }

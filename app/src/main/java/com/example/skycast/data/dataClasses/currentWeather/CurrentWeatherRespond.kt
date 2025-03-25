@@ -5,7 +5,6 @@ import com.example.skycast.data.dataClasses.Main
 import com.example.skycast.data.dataClasses.Sys
 import com.example.skycast.data.dataClasses.Weather
 import com.example.skycast.data.dataClasses.Wind
-
 data class CurrentWeatherRespond(
     val weather: List<Weather>,
     val base: String,
