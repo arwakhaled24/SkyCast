@@ -3,6 +3,9 @@ package com.example.skycast.data.remoteData
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import retrofit2.Response
 
 class WearherRemoreDataSourse {
 
@@ -11,20 +14,15 @@ class WearherRemoreDataSourse {
         lon: String,
         language: String,
         unit: String
-    ): CurrentWeatherRespond? {
-        try {
+    ): Flow<CurrentWeatherRespond?> {
+
             val result = RetrofitHelper.apiServices?.getCurrentWeather(
                 latitude = lat,
                 longitude = lon,
                 lang = language,
                 unit = unit
-            )
-            if (result?.isSuccessful!!) return result.body()
-            else  return null
-
-        } catch (e: Exception) {
-            return null
-        }
+            )?.body()
+        return flowOf(result)
     }
 
     suspend fun getForecast(
@@ -32,14 +30,9 @@ class WearherRemoreDataSourse {
         lon: String,
         language: String,
         unit: String
-    ):ForecasteRespond?{
-        try {
-            val result=RetrofitHelper.apiServices?.getForecast(lat,lon,language= language,unit = unit)
-            if (result?.isSuccessful()==true) return result.body()
-            else return null
-        }catch (e :Exception){
-            return null
-        }
+    ): Flow<ForecasteRespond?> {
+        val result=RetrofitHelper.apiServices?.getForecast(lat,lon,language= language,unit = unit)?.body()
+      return flowOf(result)
     }
 }
 

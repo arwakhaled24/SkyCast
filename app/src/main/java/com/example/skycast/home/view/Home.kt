@@ -1,6 +1,4 @@
-package com.example.skycast.view.screens
-import android.app.Application
-import android.content.Context
+package com.example.skycast.home.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,25 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
-import com.example.skycast.data.LocalData.WeatherLocalDataSourse
-import com.example.skycast.data.dataClasses.Weather
-import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
-import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
-import com.example.skycast.data.remoteData.WearherRemoreDataSourse
-import com.example.skycast.data.repository.WeatherRepository
-import com.example.skycast.viewModel.CurrentWeatherViewModel
-import com.example.skycast.viewModel.MyFactory
 
 
 @Composable
-fun Weather(/*currenWeatherRespond: CurrentWeatherRespond?, forecasteRespond: ForecasteRespond?*/) {
-    val context = LocalContext.current
-
+fun Home() {
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -38,7 +23,7 @@ fun Weather(/*currenWeatherRespond: CurrentWeatherRespond?, forecasteRespond: Fo
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = /*currenWeatherRespond?.name?:*/" CITY NAME", fontSize = 24.sp, color = Color.White)
+            Text(text = " CITY NAME", fontSize = 24.sp, color = Color.White)
             Text(text = "21°C", fontSize = 64.sp, color = Color.White)
             Text(text = "Partly Cloudy", fontSize = 20.sp, color = Color.White)
             Text(text = "H:29° L:15°", fontSize = 16.sp, color = Color.White)

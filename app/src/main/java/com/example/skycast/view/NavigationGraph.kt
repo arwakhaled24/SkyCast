@@ -5,10 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
-import com.example.skycast.view.screens.Favourits
+import com.example.skycast.view.screens.Alert
+import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.view.screens.Setting
-import com.example.skycast.view.screens.Weather
+import com.example.skycast.home.view.Home
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavHost(
@@ -16,17 +16,17 @@ fun NavigationGraph(navController: NavHostController) {
         startDestination = NavigationRoutes.HomeScreen.route,
         modifier = Modifier
     ) {
-        composable(route = NavigationRoutes.HomeScreen.route) { /*navigationBackStack->*/
-      /*      val data = navigationBackStack.toRoute<NavigationRoutes.HomeScreen>()
-            val currentWeatherRespond = data.currentWeatherRespond
-            val forecasteRespond = data.forecastRespond*/
-            Weather(/*currentWeatherRespond,forecasteRespond*/)
+        composable(route = NavigationRoutes.HomeScreen.route) {
+            Home()
         }
         composable(route = NavigationRoutes.SettingScreen.route) {
             Setting()
         }
         composable(route = NavigationRoutes.FavouritScreen.route) {
             Favourits()
+        }
+        composable(route = NavigationRoutes.AlertScreen.route) {
+            Alert()
         }
     }
 

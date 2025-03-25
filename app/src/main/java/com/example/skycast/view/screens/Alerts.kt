@@ -10,12 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
- fun Favourits() {
- Column(
-  Modifier
-  .fillMaxSize()) {
-  Text(text = "Home")
+fun Alert() {
+    Column(
+        Modifier
+            .fillMaxSize()) {
+        Text(text = "Alert")
 
 
- }
+    }
 }
