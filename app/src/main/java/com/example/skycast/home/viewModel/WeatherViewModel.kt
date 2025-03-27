@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
+class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() {
 
     private var _currentWeather = MutableStateFlow<RespondStatus<CurrentWeatherRespond>>(RespondStatus.Loading)
     var currentWeather: MutableStateFlow<RespondStatus<CurrentWeatherRespond>> = _currentWeather
@@ -30,7 +30,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
         lat: String,
         lon: String,
         language: String = "en",
-        unit: String = "standard"
+        unit: String = "metric"
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getCurrentWeather(lat, lon, language, unit)
@@ -69,6 +69,6 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
 
 class MyFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-        return HomeViewModel(repository) as T
+        return WeatherViewModel(repository) as T
     }
 }

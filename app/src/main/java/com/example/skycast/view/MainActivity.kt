@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -13,6 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -25,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,16 +36,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.skycast.Favourits.view.Favourits
+import com.example.skycast.Favourits.viewModel.FavouritsViewModel
+import com.example.skycast.Favourits.viewModel.MyFavFactory
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
 import com.example.skycast.data.dataClasses.NavItem
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.home.view.Home
-import com.example.skycast.home.viewModel.HomeViewModel
+import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.home.viewModel.MyFactory
 import com.example.skycast.view.screens.Alert
 import com.example.skycast.view.screens.Setting
@@ -56,33 +59,36 @@ import com.google.android.gms.location.Priority
 private const val LOCATION_PERMISSION_CODE = 1
 
 class MainActivity : ComponentActivity() {
+
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var weatherViewModel: WeatherViewModel
+    lateinit var favViewModel: FavouritsViewModel
 
-    /*
-        lateinit var locationState: MutableState<Location>
-    */
-    lateinit var weatherViewModel: HomeViewModel
-
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-
         var myFactory = MyFactory(
             WeatherRepository(
                 WearherRemoreDataSourse(),
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
-
         weatherViewModel = ViewModelProvider(this, myFactory)
-            .get(HomeViewModel::class.java)
+            .get(WeatherViewModel::class.java)
+        var myFavFactory = MyFavFactory(
+            WeatherRepository(
+                WearherRemoreDataSourse(),
+                LocalDataSource(MyDatabase.getInstance(context = this).getDao())
+            )
+        )
+        favViewModel = ViewModelProvider(this, myFavFactory)
+            .get(FavouritsViewModel::class.java)
 
         setContent {
-            MainScreen(weatherViewModel)
-
-
+            MainScreen(weatherViewModel,favViewModel)
         }
     }
 
@@ -142,9 +148,16 @@ class MainActivity : ComponentActivity() {
                     Log.i("TAG", "onLocationResult: ${locationResult.lastLocation}")
                     /* locationState.value =
                          locationResult.lastLocation ?: Location(LocationManager.GPS_PROVIDER)*/
-                    val location =
-                        locationResult.lastLocation ?: Location(LocationManager.GPS_PROVIDER)
+                    val location = locationResult.lastLocation ?:
+                                    Location(LocationManager.GPS_PROVIDER)
+
+
                     weatherViewModel.getCurrentWeather(
+                        location.latitude.toString(),
+                        location.longitude.toString()
+                    )
+
+                    weatherViewModel.getForecast(
                         location.latitude.toString(),
                         location.longitude.toString()
                     )
@@ -185,34 +198,30 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(viewModel: HomeViewModel) {
-    var navController = rememberNavController()
-    val   selectedIndex = remember { mutableStateOf(0) }
+fun MainScreen(weatherViewModel: WeatherViewModel, favViewModel:FavouritsViewModel ) {
+
+    val selectedIndex = remember { mutableStateOf(0) }
+    val currentWeather = weatherViewModel.currentWeather.collectAsState().value
+    val forecastRespond = weatherViewModel.forecast.collectAsState().value
+    val favLocations = favViewModel.favouritLocationList.collectAsState().value
+    val msg = weatherViewModel.message.observeAsState()
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Favorites", Icons.Default.Favorite),
         NavItem("Notification", Icons.Default.Notifications),
         NavItem("Settings", Icons.Default.List)
     )
-    /* val currentWeather = viewModel.currentWeather.collectAsState().value
-     val forecasteRespond = viewModel.forecast.collectAsState().value*/
-    ////do when and check the types error -> load-> suc
-
-
-    /*
-        Log.i("TAG", "viewmodel: ${currentWeather.value?.name?:"www"}")
-    */
-
-    val msg = viewModel.message.observeAsState()
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-
             NavigationBar {
                 navItems.forEachIndexed({ index, screen ->
                     NavigationBarItem(
@@ -230,14 +239,19 @@ fun MainScreen(viewModel: HomeViewModel) {
             }
         }
     ) {
-        ContentScreen(selectedIndex.value)
+        when (selectedIndex.value) {
+            0 -> Home(currentWeather, forecastRespond)
+            1 -> Favourits(favLocations)
+            2 -> Alert()
+            3 -> Setting()
+        }
     }
 
 }
 
 @Composable
 fun BottomBar(navController: NavHostController) {
-  val   selectedIndex = remember { mutableStateOf(0) }
+    val selectedIndex = remember { mutableStateOf(0) }
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Favorites", Icons.Default.Favorite),
@@ -256,49 +270,8 @@ fun BottomBar(navController: NavHostController) {
                     )
                 },
                 onClick = { selectedIndex.value = index },
-                selected = if (selectedIndex.value == index) true else false,
+                selected = selectedIndex.value == index,
             )
         })
     }
 }
-
-
-@Composable
-fun ContentScreen(index: Int) {
-    when (index) {
-        0 -> Home()
-        1 -> Favourits()
-        2 -> Alert()
-        3 -> Setting()
-    }
-
-}
-
-/*
-@Composable
-fun RowScope.AddItem(
-    screen: NavItem,
-    currentDestination: NavDestination?,
-    navController: NavHostController,
-    selectedIndex: Int
-) {
-    NavigationBarItem(
-        label = { screen.name },
-
-        icon = {
-            Icon(
-                imageVector = screen.icon,
-                contentDescription = "navigation icon"
-            )
-        },
-        */
-/*  selected = selectedIndes== screen.index? true :false  ,*//*
-
-
-        onClick = { selectedIndes = screen.index },
-        selected = TODO(),
-
-        )
-
-}
-*/

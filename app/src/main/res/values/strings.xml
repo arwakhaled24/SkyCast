@@ -13,4 +13,5 @@
     <string name="wind_spean_unit">Wind Spean Unit</string>
     <string name="m_sec">meter/sec</string>
     <string name="mile_houre">mile/houre</string>
+    <string name="no_favourite_location_yet">No Favourite Location Yet</string>
 </resources>

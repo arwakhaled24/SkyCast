@@ -1,3 +1,4 @@
+/*
 package com.example.skycast.view
 
 import androidx.compose.runtime.Composable
@@ -17,7 +18,11 @@ fun NavigationGraph(navController: NavHostController) {
         modifier = Modifier
     ) {
         composable(route = NavigationRoutes.HomeScreen.route) {
+*/
+/*
             Home()
+*//*
+
         }
         composable(route = NavigationRoutes.SettingScreen.route) {
             Setting()
@@ -30,4 +35,4 @@ fun NavigationGraph(navController: NavHostController) {
         }
     }
 
-}
+}*/

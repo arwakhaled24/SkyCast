@@ -82,4 +82,27 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.3.0")
 
 
+    // hamcrest
+    testImplementation("org.hamcrest:hamcrest:2.2")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
+    androidTestImplementation("org.hamcrest:hamcrest:2.2")
+    androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
+
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+    // Coroutines Testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    // JUnit (for running tests)
+    testImplementation("junit:junit:4.13.2")
+
+    //maps
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+
+
+
+
+
+
 }

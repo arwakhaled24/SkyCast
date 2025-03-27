@@ -4,15 +4,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class FavouritsViewModel(val repository: WeatherRepository) : ViewModel() {
 
-    private val _favouritLocationList = MutableStateFlow<List<LocationDataClass>>(emptyList())
+    private val _favouritLocationList = MutableStateFlow<RespondStatus<List<LocationDataClass>>>(RespondStatus.Loading)
     val favouritLocationList = _favouritLocationList.asStateFlow()
 
     private val _msg = mutableStateOf("")
@@ -24,13 +27,11 @@ class FavouritsViewModel(val repository: WeatherRepository) : ViewModel() {
 
     fun getAllFav() {
         viewModelScope.launch {
-            try {
-                val favLocations = repository.getAllFav()
-                favLocations.collect { it ->
-                    _favouritLocationList.value = it
-                }
-            } catch (e: Throwable) {
-                _msg.value = "something went wrong"
+           val favLocations = repository.getAllFav()
+            favLocations.catch {
+                _favouritLocationList.value = RespondStatus.Error(it)
+            }.collect{
+                _favouritLocationList.value=RespondStatus.Success(it)
             }
         }
     }
