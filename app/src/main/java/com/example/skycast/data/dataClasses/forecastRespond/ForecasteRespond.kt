@@ -6,4 +6,6 @@ data class ForecasteRespond(
     val cnt: Long,
     val list: List<WeatherItem>,
     val city: City,
-)
+) {
+
+}

@@ -49,7 +49,7 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
         lat: String,
         lon: String,
         language: String = "en",
-        unit: String = "standard"
+        unit: String = "metric"
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getForecastgetCurrentWeather(lat, lon, language, unit)

@@ -15,12 +15,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,12 +36,13 @@ import androidx.compose.ui.unit.sp
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
+import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
 import kotlinx.coroutines.delay
-import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,9 +70,9 @@ fun Home(
     }
 }
 
-fun getTime(forecasteRespond: ForecasteRespond) {
+/*fun getTime(forecasteRespond: ForecasteRespond) {
     Timestamp(forecasteRespond.list[0].dtTxt.toLong()).time
-}
+}*/
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -76,7 +81,7 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
     val k = "°K"
     val f = "°F"
     var unit = c
-   val currentTime  = remember { mutableStateOf(getCurrentTime().toString()) }
+    val currentTime = remember { mutableStateOf(getCurrentTime().toString()) }
 
 
     Log.i("TAG", "OnSuccess: $currentTime")
@@ -114,8 +119,6 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
                 color = Color.White
             )
             Spacer(Modifier.height(10.dp))
-
-
             val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
             Row {
@@ -130,7 +133,6 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
                     fontSize = 16.sp,
                     color = Color.White
                 )
-
             }
             Text(
                 text = date.dayOfWeek.name,
@@ -160,27 +162,63 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Cloudy conditions from 1AM-9AM," +
-                        " with showers expected at 9AM.",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
+            Spacer(modifier = Modifier.height(32.dp))
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                HourlyForecastItem("Now", "21°", "☁️")
-                HourlyForecastItem("10PM", "21°", "🌧️")
-                HourlyForecastItem("11PM", "19°", "🌧️")
-                HourlyForecastItem("12AM", "19°", "🌤️")
-                HourlyForecastItem("1AM", "19°", "☀️")
+                val todayForecast = toDaysForecast(forecasteRespond.list)
+                val todayHourlyForecast = interpolateHourlyForecast(todayForecast)
+                items(24) { index ->
+                    val item = todayHourlyForecast[index]
+                    HourlyForecastItem(item, getTime(item.dt).toInt() + index)
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(80.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.2f)
+                )
+            ) {
+                Column {
+                    Row {
+                        Card() {
+                            Column {
+                                Text("💦 Humidity")
+                                Text(currenntWeather.main.humidity.toString())
+                            }
+                        }
+                        Card() {
+                            Column {
+                                Text("💦 Humidity")
+                                Text(currenntWeather.main.humidity.toString())
+                            }
+                        }
+                    }
+                    Row {
+                        Card() {
+                            Column {
+                                Text("💦 Humidity")
+                                Text(currenntWeather.main.humidity.toString())
+                            }
+                        }
+                        Card() {
+                            Column {
+                                Text("💦 Humidity")
+                                Text(currenntWeather.main.humidity.toString())
+                            }
+                        }
+                    }
+                }
+
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
             Text(text = "10-DAY FORECAST", fontSize = 20.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
@@ -190,6 +228,7 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
             ForecastItem("Tue", "20°", "25°", "🌧️", "50%")
         }
     }
+
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -216,12 +255,35 @@ fun OnError(e: Throwable) {
 }
 
 @Composable
-fun HourlyForecastItem(time: String, temperature: String, icon: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = time, color = Color.White)
-        Text(text = temperature, color = Color.White)
-        Text(text = icon, fontSize = 24.sp)
+fun HourlyForecastItem(wearherItem: WeatherItem, time: Int) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .size(80.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.2f)
+        )
+
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            val pm = time - 12
+            val am = time - 24
+            Log.i("TAG", "HourlyForecastItem: ${pm.absoluteValue}")
+            Text(
+                text = if (time <= 12) "$time AM " else if (time <= 24) "$pm PM" else "$am AM",
+                color = Color.White
+            )
+            Text(text = wearherItem.main.temp.toInt().toString(), color = Color.White)
+
+            Text(text = getIcon(wearherItem.weather[0].icon), fontSize = 24.sp)
+        }
     }
+
 }
 
 @Composable
@@ -238,4 +300,74 @@ fun ForecastItem(day: String, low: String, high: String, icon: String, chanceOfP
 fun getCurrentTime(): String {
     val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
     return sdf.format(Date(System.currentTimeMillis()))
+}
+
+fun getTime(time: Long): String {
+    val sdf = SimpleDateFormat("h", Locale.getDefault())
+    return sdf.format(Date(time))
+}
+
+/*@Composable
+fun dayForecastItem(weatherItem: WeatherItem) {
+    Log.i("TAG", "dayForecastItem:${weatherItem.dt} ")
+    HourlyForecastItem(weatherItem, getTime(weatherItem.dt))
+    HourlyForecastItem(weatherItem, getTime(weatherItem.dt + 3_600_000))
+    HourlyForecastItem(weatherItem, getTime(weatherItem.dt + 3_600_000 + 3_600_000))
+}*/
+
+@Composable
+fun getIcon(iconCode: String): String {
+    if (iconCode == "01d") return "☀️"
+    else if (iconCode == "01n") return "🌑"
+    else if (iconCode == "11d" || iconCode == "11n") return "⛈"
+    else if (iconCode == "13d" || iconCode == "13n") return "❄"
+    else if (iconCode == "02d") return "🌤️"
+    else if (iconCode == "10d") return "🌦️"
+    else if (iconCode == "03d" || iconCode == "03n") return "☁️"
+    else if (iconCode == "09d" || iconCode == "09n" || iconCode == "10n") return "🌧️"
+    else if (iconCode == "04d") return "☁️"
+    else if (iconCode == "04n") return "☁︎"
+    else if (iconCode == "50d" || iconCode == "50n") return "🌫️"
+    else if (iconCode == "02n") return "☁"
+    return ""
+
+}
+
+
+fun toDaysForecast(wearherItem: List<WeatherItem>): List<WeatherItem> {
+    val todayForecast = wearherItem.subList(0, 9).toList()
+    return todayForecast
+}
+
+fun interpolateHourlyForecast(weatherItems: List<WeatherItem>): List<WeatherItem> {
+    val interpolatedForecast = mutableListOf<WeatherItem>()
+
+    for (i in 0 until weatherItems.size - 1) {
+        val currentItem = weatherItems[i]
+        val nextItem = weatherItems[i + 1]
+
+        interpolatedForecast.add(currentItem)
+
+
+        val tempDiff = (nextItem.main.temp - currentItem.main.temp) / 3
+        val pressureDiff = (nextItem.main.pressure - currentItem.main.pressure) / 3
+        val humidityDiff = (nextItem.main.humidity - currentItem.main.humidity) / 3
+
+
+        repeat(2) { j ->
+            val interpolatedItem = currentItem.copy(
+                dt = currentItem.dt + (j + 1) * 3600,
+                dtTxt = "",
+                main = currentItem.main.copy(
+                    temp = currentItem.main.temp + (j + 1) * tempDiff,
+                    pressure = currentItem.main.pressure + (j + 1) * pressureDiff,
+                    humidity = currentItem.main.humidity + (j + 1) * humidityDiff.toInt()
+                )
+            )
+            interpolatedForecast.add(interpolatedItem)
+        }
+    }
+    interpolatedForecast.add(weatherItems.last())
+
+    return interpolatedForecast
 }
