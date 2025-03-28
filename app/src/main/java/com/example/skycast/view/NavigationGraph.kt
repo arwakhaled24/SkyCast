@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.skycast.view.screens.Alert
-import com.example.skycast.Favourits.view.Favourits
+import com.example.skycast.favourits.view.Favourits
 import com.example.skycast.view.screens.Setting
 import com.example.skycast.home.view.Home
 @Composable

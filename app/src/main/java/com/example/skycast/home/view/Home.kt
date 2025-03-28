@@ -1,22 +1,23 @@
 package com.example.skycast.home.view
 
-import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+/*
+import androidx.compose.foundation.layout.FlowRowScopeInstance.align
+*/
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -36,20 +37,18 @@ import androidx.compose.ui.unit.sp
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
-import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
+import com.example.skycast.utils.hasNetwork
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
-import kotlin.math.absoluteValue
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
     currenntWeather: RespondStatus<CurrentWeatherRespond>,
-    forecasteRespond: RespondStatus<ForecasteRespond>
+    forecasteRespond: RespondStatus<ForecasteRespond>,
+    isConnected:Boolean
 ) {
 
     when {
@@ -66,103 +65,122 @@ fun Home(
             OnLoading()
 
         currenntWeather is RespondStatus.Success && forecasteRespond is RespondStatus.Success ->
-            OnSuccess(currenntWeather.result, forecasteRespond.result)
+            OnSuccess(currenntWeather.result, forecasteRespond.result,isConnected)
     }
 }
 
-/*fun getTime(forecasteRespond: ForecasteRespond) {
-    Timestamp(forecasteRespond.list[0].dtTxt.toLong()).time
-}*/
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: ForecasteRespond) {
+fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: ForecasteRespond,isConnected: Boolean) {
     val c = "°C"
     val k = "°K"
     val f = "°F"
     var unit = c
     val currentTime = remember { mutableStateOf(getCurrentTime().toString()) }
+    val context = LocalContext.current
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list.size}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[1].dtTxt}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[8].dtTxt}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[16].dtTxt}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[24].dtTxt}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[32].dtTxt}")
+    Log.i("TAG", "MainScreen: ${forecasteRespond.list[39].dtTxt}")
 
-
-    Log.i("TAG", "OnSuccess: $currentTime")
-    Box(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF000000))
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        item { Spacer(modifier = Modifier.height(25.dp)) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(25.dp))
-            Text(
-                text = currenntWeather.name,
-                fontSize = 24.sp, color = Color.White
-            )
-
-            Spacer(Modifier.height(10.dp))
-            Row {
+        item {
+            if (!isConnected) {
                 Text(
-                    text = currenntWeather.main.temp.toInt().toString(),
-                    fontSize = 64.sp,
-                    color = Color.White
-                )
-                Text(text = unit, fontSize = 16.sp, color = Color.White)
-            }
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = currenntWeather.weather[0].description,
-                fontSize = 20.sp,
-                color = Color.White
-            )
-            Spacer(Modifier.height(10.dp))
-            val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
-            Row {
-                Text(
-                    text = date.month.name,
-                    fontSize = 16.sp,
-                    color = Color.White
-                )
-                Spacer(Modifier.width(5.dp))
-                Text(
-                    text = date.year.toString(),
-                    fontSize = 16.sp,
-                    color = Color.White
+                    text = "You Are In Offline Mode",
+                    fontSize = 32.sp,
+                    color = Color.Black
                 )
             }
-            Text(
-                text = date.dayOfWeek.name,
-                fontSize = 18.sp,
-                color = Color.White
-            )
-            Text(
-                text = currentTime.value,
-                fontSize = 18.sp,
-                color = Color.White
-            )
+        }
 
-
-
-            Spacer(Modifier.height(10.dp))
-            Row {
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)/*.align(Alignment.CenterVertically)*/,
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+            ) {
                 Text(
-                    text = "H:${currenntWeather.main.tempMax.toInt()}°",
-                    fontSize = 16.sp,
+                    text = currenntWeather.name,
+                    fontSize = 24.sp,
                     color = Color.White
                 )
-                Spacer(Modifier.width(5.dp))
+
+
+                Spacer(Modifier.height(10.dp))
+
+
+                Row {
+                    Text(
+                        text = currenntWeather.main.temp.toInt().toString(),
+                        fontSize = 64.sp,
+                        color = Color.White
+                    )
+                    Text(text = unit, fontSize = 16.sp, color = Color.White)
+                }
+
+
+                Spacer(Modifier.height(10.dp))
+
+
                 Text(
-                    text = "L:${currenntWeather.main.tempMin.toInt()}°",
-                    fontSize = 16.sp,
+                    text = currenntWeather.weather[0].description,
+                    fontSize = 20.sp,
                     color = Color.White
                 )
+                Spacer(Modifier.height(10.dp))
+                val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
+                Row {
+                    Text(text = date.month.name, fontSize = 16.sp, color = Color.White)
+                    Spacer(Modifier.width(5.dp))
+                    Text(text = date.year.toString(), fontSize = 16.sp, color = Color.White)
+                }
+                Text(text = date.dayOfWeek.name, fontSize = 18.sp, color = Color.White)
+                Text(text = currentTime.value, fontSize = 18.sp, color = Color.White)
+                Spacer(Modifier.height(10.dp))
+
+
+                Row {
+                    Text(
+                        text = "H:${currenntWeather.main.tempMax.toInt()}°",
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.width(5.dp))
+                    Text(
+                        text = "L:${currenntWeather.main.tempMin.toInt()}°",
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                }
             }
+        }
 
-            Spacer(modifier = Modifier.height(32.dp))
+
+
+
+
+
+
+
+
+        item { Spacer(modifier = Modifier.height(32.dp)) }
+
+        item {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
@@ -174,62 +192,51 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
                     HourlyForecastItem(item, getTime(item.dt).toInt() + index)
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+        }
 
+        item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            Card(
-                shape = RoundedCornerShape(12.dp),
+        item {
+            Box(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(80.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.2f)
-                )
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.TopCenter
             ) {
-                Column {
-                    Row {
-                        Card() {
-                            Column {
-                                Text("💦 Humidity")
-                                Text(currenntWeather.main.humidity.toString())
-                            }
-                        }
-                        Card() {
-                            Column {
-                                Text("💦 Humidity")
-                                Text(currenntWeather.main.humidity.toString())
-                            }
-                        }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        WeatherSubCard("💦 Humidity", "${currenntWeather.main.humidity}%")
+                        WeatherSubCard("☁\uFE0F Clouds ", "${currenntWeather.clouds.all}%")
+                        WeatherSubCard("🌅 Sun Rise", getTimeWithM(currenntWeather.sys.sunrise))
                     }
-                    Row {
-                        Card() {
-                            Column {
-                                Text("💦 Humidity")
-                                Text(currenntWeather.main.humidity.toString())
-                            }
-                        }
-                        Card() {
-                            Column {
-                                Text("💦 Humidity")
-                                Text(currenntWeather.main.humidity.toString())
-                            }
-                        }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                        WeatherSubCard("🌬️ Wind", "${currenntWeather.wind.speed} m/s")
+                        WeatherSubCard("🌤️ Pressure", "${currenntWeather.main.pressure} hPa")
+                        WeatherSubCard("🌇️ Sun Set", getTimeWithM(currenntWeather.sys.sunset))
                     }
                 }
-
             }
+        }
 
+        item {
+            Text(text = "5-DAY FORECAST", fontSize = 20.sp, color = Color.White)
+        }
 
-            Text(text = "10-DAY FORECAST", fontSize = 20.sp, color = Color.White)
-            Spacer(modifier = Modifier.height(8.dp))
+        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            ForecastItem("Today", "15°", "29°", "☀️", "0%")
-            ForecastItem("Mon", "18°", "27°", "🌧️", "60%")
-            ForecastItem("Tue", "20°", "25°", "🌧️", "50%")
+        items(forecasteRespond.list.size) { index ->
+            val listIndex = (index * 8)
+            Log.i("TAG", "OnSuccess: Index = $listIndex")
+            ForecastItem(forecasteRespond.list[index])
         }
     }
-
-
     LaunchedEffect(Unit) {
         while (true) {
             currentTime.value = getCurrentTime()
@@ -254,120 +261,7 @@ fun OnError(e: Throwable) {
     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
 }
 
-@Composable
-fun HourlyForecastItem(wearherItem: WeatherItem, time: Int) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .size(80.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.2f)
-        )
-
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            val pm = time - 12
-            val am = time - 24
-            Log.i("TAG", "HourlyForecastItem: ${pm.absoluteValue}")
-            Text(
-                text = if (time <= 12) "$time AM " else if (time <= 24) "$pm PM" else "$am AM",
-                color = Color.White
-            )
-            Text(text = wearherItem.main.temp.toInt().toString(), color = Color.White)
-
-            Text(text = getIcon(wearherItem.weather[0].icon), fontSize = 24.sp)
-        }
-    }
-
-}
-
-@Composable
-fun ForecastItem(day: String, low: String, high: String, icon: String, chanceOfPrecip: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = day, color = Color.White)
-        Text(text = low, color = Color.White)
-        Text(text = high, color = Color.White)
-        Text(text = icon, fontSize = 24.sp)
-        Text(text = chanceOfPrecip, color = Color.White)
-    }
-}
-
-fun getCurrentTime(): String {
-    val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
-    return sdf.format(Date(System.currentTimeMillis()))
-}
-
-fun getTime(time: Long): String {
-    val sdf = SimpleDateFormat("h", Locale.getDefault())
-    return sdf.format(Date(time))
-}
-
-/*@Composable
-fun dayForecastItem(weatherItem: WeatherItem) {
-    Log.i("TAG", "dayForecastItem:${weatherItem.dt} ")
-    HourlyForecastItem(weatherItem, getTime(weatherItem.dt))
-    HourlyForecastItem(weatherItem, getTime(weatherItem.dt + 3_600_000))
-    HourlyForecastItem(weatherItem, getTime(weatherItem.dt + 3_600_000 + 3_600_000))
-}*/
-
-@Composable
-fun getIcon(iconCode: String): String {
-    if (iconCode == "01d") return "☀️"
-    else if (iconCode == "01n") return "🌑"
-    else if (iconCode == "11d" || iconCode == "11n") return "⛈"
-    else if (iconCode == "13d" || iconCode == "13n") return "❄"
-    else if (iconCode == "02d") return "🌤️"
-    else if (iconCode == "10d") return "🌦️"
-    else if (iconCode == "03d" || iconCode == "03n") return "☁️"
-    else if (iconCode == "09d" || iconCode == "09n" || iconCode == "10n") return "🌧️"
-    else if (iconCode == "04d") return "☁️"
-    else if (iconCode == "04n") return "☁︎"
-    else if (iconCode == "50d" || iconCode == "50n") return "🌫️"
-    else if (iconCode == "02n") return "☁"
-    return ""
-
-}
 
 
-fun toDaysForecast(wearherItem: List<WeatherItem>): List<WeatherItem> {
-    val todayForecast = wearherItem.subList(0, 9).toList()
-    return todayForecast
-}
-
-fun interpolateHourlyForecast(weatherItems: List<WeatherItem>): List<WeatherItem> {
-    val interpolatedForecast = mutableListOf<WeatherItem>()
-
-    for (i in 0 until weatherItems.size - 1) {
-        val currentItem = weatherItems[i]
-        val nextItem = weatherItems[i + 1]
-
-        interpolatedForecast.add(currentItem)
 
 
-        val tempDiff = (nextItem.main.temp - currentItem.main.temp) / 3
-        val pressureDiff = (nextItem.main.pressure - currentItem.main.pressure) / 3
-        val humidityDiff = (nextItem.main.humidity - currentItem.main.humidity) / 3
-
-
-        repeat(2) { j ->
-            val interpolatedItem = currentItem.copy(
-                dt = currentItem.dt + (j + 1) * 3600,
-                dtTxt = "",
-                main = currentItem.main.copy(
-                    temp = currentItem.main.temp + (j + 1) * tempDiff,
-                    pressure = currentItem.main.pressure + (j + 1) * pressureDiff,
-                    humidity = currentItem.main.humidity + (j + 1) * humidityDiff.toInt()
-                )
-            )
-            interpolatedForecast.add(interpolatedItem)
-        }
-    }
-    interpolatedForecast.add(weatherItems.last())
-
-    return interpolatedForecast
-}

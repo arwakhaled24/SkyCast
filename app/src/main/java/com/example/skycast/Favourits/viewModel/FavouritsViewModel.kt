@@ -10,10 +10,9 @@ import com.example.skycast.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
-class FavouritsViewModel(val repository: WeatherRepository) : ViewModel() {
+class FavouritsViewModel(private val repository: WeatherRepository) : ViewModel() {
 
     private val _favouritLocationList = MutableStateFlow<RespondStatus<List<LocationDataClass>>>(RespondStatus.Loading)
     val favouritLocationList = _favouritLocationList.asStateFlow()

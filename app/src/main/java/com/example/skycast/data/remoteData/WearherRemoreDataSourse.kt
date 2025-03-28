@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.Response
 
-class WearherRemoreDataSourse {
+class WearherRemoreDataSourse(val retrofitHelper: RetrofitHelper) {
 
     suspend fun getCurrentWeather(
         lat: String,
@@ -16,7 +16,7 @@ class WearherRemoreDataSourse {
         unit: String
     ): Flow<CurrentWeatherRespond?> {
 
-            val result = RetrofitHelper.apiServices?.getCurrentWeather(
+            val result = retrofitHelper.apiServices?.getCurrentWeather(
                 latitude = lat,
                 longitude = lon,
                 lang = language,
@@ -31,7 +31,7 @@ class WearherRemoreDataSourse {
         language: String,
         unit: String
     ): Flow<ForecasteRespond?> {
-        val result=RetrofitHelper.apiServices?.getForecast(lat,lon,language= language,unit = unit)?.body()
+        val result=retrofitHelper.apiServices?.getForecast(lat,lon,language= language,unit = unit)?.body()
       return flowOf(result)
     }
 }

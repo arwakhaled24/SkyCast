@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -36,18 +37,22 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import com.example.skycast.Favourits.view.Favourits
-import com.example.skycast.Favourits.viewModel.FavouritsViewModel
-import com.example.skycast.Favourits.viewModel.MyFavFactory
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
+import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.data.dataClasses.NavItem
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
+import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
 import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.home.view.Home
 import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.home.viewModel.MyFactory
-import com.example.skycast.view.screens.Alert
+import com.example.skycast.ui.theme.SkyCastTheme
+import com.example.skycast.alarm.view.Alert
+import com.example.skycast.Favourits.view.Favourits
+import com.example.skycast.Favourits.viewModel.FavouritsViewModel
+import com.example.skycast.Favourits.viewModel.MyFavFactory
+import com.example.skycast.utils.NetworkConnectivityObserver
 import com.example.skycast.view.screens.Setting
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -63,6 +68,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var weatherViewModel: WeatherViewModel
     lateinit var favViewModel: FavouritsViewModel
+    lateinit var connectivityObserver: NetworkConnectivityObserver
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("CoroutineCreationDuringComposition")
@@ -70,17 +76,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        connectivityObserver= NetworkConnectivityObserver(this)
+
         var myFactory = MyFactory(
-            WeatherRepository(
-                WearherRemoreDataSourse(),
+            WeatherRepository.getInstance(
+                WearherRemoreDataSourse(RetrofitHelper(context = this)),
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
         weatherViewModel = ViewModelProvider(this, myFactory)
             .get(WeatherViewModel::class.java)
+
+
+
         var myFavFactory = MyFavFactory(
-            WeatherRepository(
-                WearherRemoreDataSourse(),
+            WeatherRepository.getInstance(
+                WearherRemoreDataSourse(RetrofitHelper(context = this)),
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
@@ -88,7 +99,12 @@ class MainActivity : ComponentActivity() {
             .get(FavouritsViewModel::class.java)
 
         setContent {
-            MainScreen(weatherViewModel,favViewModel)
+
+            val networkState= connectivityObserver.observe().collectAsState(true)
+            SkyCastTheme {
+                MainScreen(weatherViewModel,favViewModel,networkState.value)
+                DebugTheme()
+            }
         }
     }
 
@@ -201,7 +217,7 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(weatherViewModel: WeatherViewModel, favViewModel:FavouritsViewModel ) {
+fun MainScreen(weatherViewModel: WeatherViewModel, favViewModel:FavouritsViewModel, isConnected :Boolean ) {
 
     val selectedIndex = remember { mutableStateOf(0) }
     val currentWeather = weatherViewModel.currentWeather.collectAsState().value
@@ -240,8 +256,13 @@ fun MainScreen(weatherViewModel: WeatherViewModel, favViewModel:FavouritsViewMod
         }
     ) {
         when (selectedIndex.value) {
-            0 -> Home(currentWeather, forecastRespond)
-            1 -> Favourits(favLocations)
+            0 -> Home(currentWeather, forecastRespond,isConnected)
+            1 -> Favourits(favLocations) { location: LocationDataClass ->
+                favViewModel.deleteFavLocation(
+                    location
+                )
+            }
+
             2 -> Alert()
             3 -> Setting()
         }
@@ -274,4 +295,10 @@ fun BottomBar(navController: NavHostController) {
             )
         })
     }
+}
+@Composable
+fun DebugTheme() {
+    val bgColor = MaterialTheme.colorScheme.background
+    val textColor = MaterialTheme.colorScheme.onBackground
+    Log.i("ThemeCheck", "Background: $bgColor, Text: $textColor")
 }

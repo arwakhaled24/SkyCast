@@ -1,26 +1,42 @@
 package com.example.skycast.ui.theme
 
-import android.app.Activity
 import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import java.time.LocalTime
+
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Color(0xFF2196F3),
+    secondary = Color(0xFFBBDEFB),
+    tertiary = Color(0xFFE3F2FD)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Color(0xFF2196F3), // Blue
+    secondary = Color(0xFFBBDEFB),
+    tertiary = Color(-0x1c0d03),
+    background = Color(0x00031A3C),
+    surface = Color(-0x4c1a04),
+    onPrimary = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+
+
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -32,7 +48,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
-
+/*
 @Composable
 fun SkyCastTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -55,4 +71,42 @@ fun SkyCastTheme(
         typography = Typography,
         content = content
     )
+}*/
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun SkyCastTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val context = LocalContext.current
+    val currentHour = LocalTime.now().hour
+    val isMorning = currentHour in 6..18
+
+    val defaultColorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+
+    val backgroundColor = if (isMorning) MorningBackground else NightBackground
+    val textColor = if (isMorning) MorningText else NightText
+
+    Log.d("ThemeCheck", "Applied Background: $backgroundColor")
+
+    MaterialTheme(
+        colorScheme = defaultColorScheme,
+        typography = Typography,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor) // Ensure time-based background is applied
+        ) {
+            content()
+        }
+    }
 }

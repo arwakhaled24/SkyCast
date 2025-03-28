@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,7 +42,7 @@ import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
 
 @Composable
-fun Favourits(favLocations: RespondStatus<List<LocationDataClass>>) {
+fun Favourits(favLocations: RespondStatus<List<LocationDataClass>>,onDelete: (location:LocationDataClass) -> Unit) {
     /*   when (favLocations) {
            is RespondStatus.Loading -> OnLoading()
            is RespondStatus.Error -> OnError(favLocations.error)
@@ -51,11 +51,6 @@ fun Favourits(favLocations: RespondStatus<List<LocationDataClass>>) {
 
     OnSuccess(
         listOf(
-          /*  LocationDataClass(
-                longitude = "30.907670",
-                latitude = "29.989723",
-                CityName = "kom hamada",
-            ),
             LocationDataClass(
                 longitude = "30.907670",
                 latitude = "29.989723",
@@ -65,13 +60,18 @@ fun Favourits(favLocations: RespondStatus<List<LocationDataClass>>) {
                 longitude = "30.907670",
                 latitude = "29.989723",
                 CityName = "kom hamada",
-            )*/
-        )
+            ),
+            LocationDataClass(
+                longitude = "30.907670",
+                latitude = "29.989723",
+                CityName = "kom hamada",
+            )
+        ), onDelete
     )
 }
 
 @Composable
-fun OnSuccess(favLocations: List<LocationDataClass>) {
+fun OnSuccess(favLocations: List<LocationDataClass>,onDelete: (location:LocationDataClass) -> Unit) {
 
 
     Box(
@@ -101,13 +101,13 @@ fun OnSuccess(favLocations: List<LocationDataClass>) {
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 itemsIndexed(favLocations) { index, location ->
-                    FavItem(location)
+                    FavItem(location,onDelete)
                 }
             }
         }
 
         FloatingActionButton(
-            onClick = { /* Handle click */ },
+            onClick = { /* Handle click and open map */ },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 120.dp, end = 35.dp)
@@ -119,15 +119,6 @@ fun OnSuccess(favLocations: List<LocationDataClass>) {
             Icon(imageVector = Icons.Filled.Add, contentDescription = "FAB")
         }
     }
-    /*FloatingActionButton(
-        onClick = {  },
-        modifier = Modifier
-            .width(50.dp)
-            .height(50.dp),
-        shape = RoundedCornerShape(20.dp)
-
-        ) {
-    }*/
 }
 
 @Composable
@@ -147,7 +138,7 @@ fun OnLoading() {
 }
 
 @Composable
-fun FavItem(locationDataClass: LocationDataClass) {
+fun FavItem(locationDataClass: LocationDataClass,onDelete:(location:LocationDataClass)->Unit) {
     val context = LocalContext.current
     var addresses = Geocoder(context).getFromLocation(
         locationDataClass.latitude.toDouble(),
@@ -178,21 +169,15 @@ fun FavItem(locationDataClass: LocationDataClass) {
             fontSize = 22.sp,
             color = Color.White
         )
-
-        Spacer(Modifier.width(20.dp))
-        Text(
-            text = locationDataClass.CityName,
-            fontSize = 16.sp, color = Color.White
-        )
         Spacer(Modifier.width(80.dp))
         Icon(
-            Icons.Filled.KeyboardArrowRight,
+            Icons.Filled.Delete,
             contentDescription = "Item Fav icon",
-            modifier = Modifier.size(25.dp)
+            modifier = Modifier.size(25.dp).clickable {
+                onDelete.invoke(locationDataClass)
+            },
+
         )
-        /*
-                Text(text = addresses?.firstOrNull()?.getAddressLine(0) ?: "......")
-        */
     }
 
 }

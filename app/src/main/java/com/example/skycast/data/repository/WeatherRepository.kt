@@ -7,9 +7,9 @@ import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import kotlinx.coroutines.flow.Flow
 
-class WeatherRepository(
-    private val weatherRemoreDataSourse: WearherRemoreDataSourse,
-   private val weatherLocalDataSourse: LocalDataSource
+class WeatherRepository private constructor(
+    private val wearherRemoreDataSourse: WearherRemoreDataSourse,
+    private val weatherLocalDataSource: LocalDataSource
 ) {
     suspend fun getCurrentWeather(
         lat: String,
@@ -17,7 +17,7 @@ class WeatherRepository(
         language: String,
         unit: String
     ): Flow<CurrentWeatherRespond?> {
-        return weatherRemoreDataSourse.getCurrentWeather(lat,lon,language,unit)
+        return wearherRemoreDataSourse.getCurrentWeather(lat,lon,language,unit)
     }
 
     suspend fun getForecastgetCurrentWeather(
@@ -26,22 +26,33 @@ class WeatherRepository(
         language: String,
         unit: String
     ): Flow<ForecasteRespond?> {
-        return weatherRemoreDataSourse.getForecast(lat,lon,language,unit)
+        return wearherRemoreDataSourse.getForecast(lat,lon,language,unit)
     }
 
     suspend fun getAllFav():Flow<List<LocationDataClass>>{
-      return  weatherLocalDataSourse.getAllFavLocation()
+      return  weatherLocalDataSource.getAllFavLocation()
     }
 
 
     suspend fun addFavLocation(locationData:LocationDataClass) :Long{
-        return weatherLocalDataSourse.addFavLocation(locationData)
+        return weatherLocalDataSource.addFavLocation(locationData)
     }
 
     suspend fun deleteFavLocation(locationDataClass: LocationDataClass):Int{
-        return weatherLocalDataSourse.deleteFavLocation(locationDataClass)
+        return weatherLocalDataSource.deleteFavLocation(locationDataClass)
     }
 
+    companion object{
+        private var INSTANCE : WeatherRepository? = null
+        fun getInstance(remoteDataSource: WearherRemoreDataSourse ,
+                        localDataSource: LocalDataSource): WeatherRepository {
+            return INSTANCE ?: synchronized(this){
+                val temp = WeatherRepository(remoteDataSource, localDataSource)
+                INSTANCE = temp
+                temp
+            }
+        }
+    }
 
 
 
