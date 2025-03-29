@@ -15,11 +15,25 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Down
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Left
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Right
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.with
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -32,6 +46,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -102,6 +118,7 @@ class MainActivity : ComponentActivity() {
                 MainScreen(weatherViewModel, favViewModel, currentLocation.value)
 
             }
+
         }
     }
 
@@ -198,6 +215,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -220,9 +238,12 @@ fun MainScreen(
     )
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        containerColor = Color(0xFFA5BFCC),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            NavigationBar {
+            NavigationBar (modifier = Modifier.background(Color(0xFF95a6c9))){
                 navItems.forEachIndexed({ index, screen ->
                     NavigationBarItem(
                         label = { screen.name },
@@ -239,57 +260,72 @@ fun MainScreen(
             }
         }
     ) {
-        when (selectedIndex.value) {
-            0 -> Home(
-                weatherViewModel,
-                lat = currentLocation.latitude.toString(),
-                long = currentLocation.longitude.toString(),
-            )
+        AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
+            slideIntoContainer(
+                animationSpec = tween(500, easing = EaseIn),
+                towards = Right
+            ).with(
+                slideOutOfContainer(
+                    animationSpec = tween(500, easing = EaseOut),
+                    towards = Left
 
-            1 -> Favourits(
-                favViewModel,
-                weatherViewModel,
-                { navController.navigate(AppDestinations.MAP_ROUTE) },
-                onNavigateToDetails = { latitude, longitude, locationName ->
-                    weatherViewModel.getCurrentWeather(latitude, longitude)
-                    navController.navigate(
-                        AppDestinations.homeRouteWithArgs(
-                            latitude = latitude,
-                            longitude = longitude,
-                            locationName = locationName.replace("/", "-")
-                        )
-                    )})
-                    2 -> Alert()
-                    3 -> Setting()
-                }
-        }
-
-    }
-
-    @Composable
-    fun BottomBar(navController: NavHostController) {
-        val selectedIndex = remember { mutableStateOf(0) }
-        val navItems = listOf(
-            NavItem("Home", Icons.Default.Home),
-            NavItem("Favorites", Icons.Default.Favorite),
-            NavItem("Notification", Icons.Default.Notifications),
-            NavItem("Settings", Icons.Default.List)
-        )
-
-        NavigationBar {
-            navItems.forEachIndexed({ index, screen ->
-                NavigationBarItem(
-                    label = { screen.name },
-                    icon = {
-                        Icon(
-                            imageVector = screen.icon,
-                            contentDescription = "navigation icon"
-                        )
-                    },
-                    onClick = { selectedIndex.value = index },
-                    selected = selectedIndex.value == index,
                 )
-            })
+            )
+        }) { targetState ->
+            when (targetState) {
+                0 -> Home(
+                    weatherViewModel,
+                    lat = currentLocation.latitude.toString(),
+                    long = currentLocation.longitude.toString(),
+                )
+
+                1 -> Favourits(
+                    favViewModel,
+                    weatherViewModel,
+                    { navController.navigate(AppDestinations.MAP_ROUTE) },
+                    onNavigateToDetails = { latitude, longitude, locationName ->
+                        weatherViewModel.getCurrentWeather(latitude, longitude)
+                        navController.navigate(
+                            AppDestinations.homeRouteWithArgs(
+                                latitude = latitude,
+                                longitude = longitude,
+                                locationName = locationName.replace("/", "-")
+                            )
+                        )
+                    })
+
+                2 -> Alert()
+                3 -> Setting()
+            }
         }
     }
+
+
+}
+
+@Composable
+fun BottomBar(navController: NavHostController) {
+    val selectedIndex = remember { mutableStateOf(0) }
+    val navItems = listOf(
+        NavItem("Home", Icons.Default.Home),
+        NavItem("Favorites", Icons.Default.Favorite),
+        NavItem("Notification", Icons.Default.Notifications),
+        NavItem("Settings", Icons.Default.List)
+    )
+    NavigationBar {
+        navItems.forEachIndexed({ index, screen ->
+            NavigationBarItem(
+                label = { screen.name },
+                icon = {
+                    Icon(
+                        imageVector = screen.icon,
+                        contentDescription = "navigation icon"
+                    )
+                },
+                onClick = { selectedIndex.value = index },
+                selected = selectedIndex.value == index,
+            )
+        })
+    }
+}
 

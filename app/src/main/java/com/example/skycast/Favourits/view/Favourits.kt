@@ -112,7 +112,8 @@ fun OnSuccess(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Cyan)
+            .background(Color(0xFFA5BFCC)),
+
     ) {
         if (locations.isEmpty()) {
             Column(

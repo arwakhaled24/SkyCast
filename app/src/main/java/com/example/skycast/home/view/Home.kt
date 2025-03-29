@@ -3,6 +3,11 @@ package com.example.skycast.home.view
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.RespondStatus
@@ -44,18 +52,20 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
-    viewModel:WeatherViewModel,
-    lat :String,
+    viewModel: WeatherViewModel,
+    lat: String,
     long: String,
 
-) {
+    ) {
     var context = LocalContext.current
-   var connectivityObserver= NetworkConnectivityObserver(context)
-    var isConnected= connectivityObserver.observe().collectAsState(initial = true)
+    var connectivityObserver = NetworkConnectivityObserver(context)
+    var isConnected = connectivityObserver.observe().collectAsState(initial = true)
     viewModel.getCurrentWeather(lat = lat, lon = long)
     viewModel.getForecast(lat = lat, lon = long)
     val currentWeather = viewModel.currentWeather.collectAsState().value
     val forecastRespond = viewModel.forecast.collectAsState().value
+    val visible = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible.value = true }
 
     when {
         currentWeather is RespondStatus.Error || forecastRespond is RespondStatus.Error -> {
@@ -71,13 +81,18 @@ fun Home(
             OnLoading()
 
         currentWeather is RespondStatus.Success && forecastRespond is RespondStatus.Success ->
-            OnHomeSuccess(currentWeather.result, forecastRespond.result,isConnected.value )
+            OnHomeSuccess(currentWeather.result, forecastRespond.result, isConnected.value)
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OnHomeSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: ForecasteRespond,isConnected: Boolean) {
+fun OnHomeSuccess(
+    currenntWeather: CurrentWeatherRespond,
+    forecasteRespond: ForecasteRespond,
+    isConnected: Boolean
+) {
     val c = "°C"
     val k = "°K"
     val f = "°F"
@@ -87,7 +102,8 @@ fun OnHomeSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Fore
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color(0xFFA5BFCC)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -95,11 +111,39 @@ fun OnHomeSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Fore
 
         item {
             if (!isConnected) {
-                Text(
-                    text = "You Are In Offline Mode",
-                    fontSize = 32.sp,
-                    color = Color.Black
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.Red.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "OFFLINE MODE",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Limited functionality available",
+                                fontSize = 14.sp,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                    }
+                }
+
             }
         }
 
@@ -110,64 +154,105 @@ fun OnHomeSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Fore
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Gray.copy(alpha = 0.3f)
+                )
             ) {
-                Text(
-                    text = currenntWeather.name,
-                    fontSize = 24.sp,
-                    color = Color.White
-                )
-
-
-                Spacer(Modifier.height(10.dp))
-
-
-                Row {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        text = currenntWeather.main.temp.toInt().toString(),
-                        fontSize = 64.sp,
-                        color = Color.White
+                        text = currenntWeather.name,
+                        fontSize = 24.sp,
+                        color = Color.White,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
-                    Text(text = unit, fontSize = 16.sp, color = Color.White)
-                }
 
+                    Spacer(Modifier.height(10.dp))
 
-                Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = currenntWeather.main.temp.toInt().toString(),
+                            fontSize = 64.sp,
+                            color = Color.White
+                        )
+                        Text(
+                            text = unit,
+                            fontSize = 16.sp,
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Bottom)
+                        )
+                    }
 
+                    Spacer(Modifier.height(10.dp))
 
-                Text(
-                    text = currenntWeather.weather[0].description,
-                    fontSize = 20.sp,
-                    color = Color.White
-                )
-                Spacer(Modifier.height(10.dp))
-                val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
-                Row {
-                    Text(text = date.month.name, fontSize = 16.sp, color = Color.White)
-                    Spacer(Modifier.width(5.dp))
-                    Text(text = date.year.toString(), fontSize = 16.sp, color = Color.White)
-                }
-                Text(text = date.dayOfWeek.name, fontSize = 18.sp, color = Color.White)
-                Text(text = currentTime.value, fontSize = 18.sp, color = Color.White)
-                Spacer(Modifier.height(10.dp))
-
-
-                Row {
                     Text(
-                        text = "H:${currenntWeather.main.tempMax.toInt()}°",
-                        fontSize = 16.sp,
-                        color = Color.White
+                        text = currenntWeather.weather[0].description,
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(Modifier.width(5.dp))
-                    Text(
-                        text = "L:${currenntWeather.main.tempMin.toInt()}°",
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = date.month.name, fontSize = 16.sp, color = Color.White)
+                            Spacer(Modifier.width(5.dp))
+                            Text(text = date.year.toString(), fontSize = 16.sp, color = Color.White)
+                        }
+
+                        Text(
+                            text = date.dayOfWeek.name,
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                        Text(
+                            text = currentTime.value,
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "H:${currenntWeather.main.tempMax.toInt()}°",
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            text = "L:${currenntWeather.main.tempMin.toInt()}°",
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
+
 
         item { Spacer(modifier = Modifier.height(32.dp)) }
 

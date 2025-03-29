@@ -24,7 +24,7 @@ fun WeatherSubCard(title: String, value: String) {
         modifier = Modifier
             .padding(4.dp)
             .size(110.dp, 90.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.6f))
+        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.6f))
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

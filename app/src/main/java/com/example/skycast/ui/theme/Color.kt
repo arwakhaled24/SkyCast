@@ -13,9 +13,10 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)*/
 
-val MorningBackground = Color(0xFF87CEFA)  // Light Blue
-val MorningText = Color(0xFF0D47A1)  // Dark Blue
 
-// Night Theme Colors
-val NightBackground = Color(0xFF001F3F)  // Dark Blue
-val NightText = Color(0xFFE0E0E0)
+val BluePeriwinkle = Color(0xFF95a6c9) // Your existing background
+val MidnightBlue = Color(0xFF2d3142)   // Dark blue for text/accents
+val CoralBlush = Color(0xFFff7f7f)     // Soft coral for accents
+val DeepOcean = Color(0xFF1a2b3c)      // Dark blue for contrast
+val CloudWhite = Color(0xFFf8f9fa)     // Clean white
+val SilverGray = Color(0xFFe9ecef)

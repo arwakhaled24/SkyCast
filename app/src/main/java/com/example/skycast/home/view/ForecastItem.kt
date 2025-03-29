@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,10 +32,11 @@ fun ForecastItem(weatherItem: WeatherItem) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
-            .background(Color(0xFF1E1E1E), shape = RoundedCornerShape(12.dp))
+            .background(Color.Gray.copy(alpha = 0.6f), shape = RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+
     ) {
         Text(
             text = date.dayOfWeek.name.take(3),
@@ -52,7 +54,7 @@ fun ForecastItem(weatherItem: WeatherItem) {
             )
             Text(
                 text = "H: ${weatherItem.main.tempMax.toInt()}°  L: ${weatherItem.main.tempMin.toInt()}°",
-                color = Color.Gray,
+                color = Color.White,
                 fontSize = 14.sp
             )
         }
