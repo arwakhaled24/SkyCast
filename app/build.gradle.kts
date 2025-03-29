@@ -1,15 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.1.10"
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 
 }
-
 android {
     namespace = "com.example.skycast"
     compileSdk = 35
+
 
     defaultConfig {
         applicationId = "com.example.skycast"
@@ -17,7 +20,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -98,12 +100,28 @@ dependencies {
     // JUnit (for running tests)
     testImplementation("junit:junit:4.13.2")
 
-    //maps
-    implementation("com.google.maps.android:maps-compose:4.3.3")
+   //maps
+    val mapsComposeVersion = "4.4.1"
+    implementation("com.google.maps.android:maps-compose:$mapsComposeVersion")
+    implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
+    implementation("com.google.maps.android:maps-compose-widgets:$mapsComposeVersion")
+
+    //viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7")
+
+    implementation(libs.places)
+    implementation(libs.play.services.maps)
 
 
 
+}
 
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "secrets.properties"
 
-
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
 }

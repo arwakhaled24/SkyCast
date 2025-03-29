@@ -1,7 +1,8 @@
 package com.example.skycast.Favourits.view
 
-import android.location.Geocoder
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,85 +30,120 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.R
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.home.view.Home
+import com.example.skycast.home.viewModel.WeatherViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Favourits(favLocations: RespondStatus<List<LocationDataClass>>,onDelete: (location:LocationDataClass) -> Unit) {
-    /*   when (favLocations) {
-           is RespondStatus.Loading -> OnLoading()
-           is RespondStatus.Error -> OnError(favLocations.error)
-           is RespondStatus.Success -> OnSuccess(favLocations.result)
-       }*/
+fun Favourits(
+    favViewModel: FavouritsViewModel,
+    weatherViewModel: WeatherViewModel,
+    onNavigateToMap: () -> Unit,
+    onNavigateToDetails: (latitude: String, longitude: String, locationName: String) -> Unit
+) {
+    favViewModel.getAllFav()
+    val showMap = remember { mutableStateOf(false) }
+    val showDetails = remember { mutableStateOf(false) }
+    val favLocations = favViewModel.favouritLocationList.collectAsState().value
+    val selectedLocation = remember { mutableStateOf<LocationDataClass?>(null) }
 
-    OnSuccess(
-        listOf(
-            LocationDataClass(
-                longitude = "30.907670",
-                latitude = "29.989723",
-                CityName = "kom hamada",
-            ),
-            LocationDataClass(
-                longitude = "30.907670",
-                latitude = "29.989723",
-                CityName = "kom hamada",
-            ),
-            LocationDataClass(
-                longitude = "30.907670",
-                latitude = "29.989723",
-                CityName = "kom hamada",
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (showMap.value) {
+            Map(
+                favViewModel = favViewModel,
+                onLocationAdded = { showMap.value = false }
             )
-        ), onDelete
-    )
+        } else if (showDetails.value && selectedLocation.value != null) {
+            selectedLocation.value?.let {
+                Home(
+                    weatherViewModel,
+                    it.latitude, it.longitude
+                )
+            }
+        } else {
+            when (favLocations) {
+                is RespondStatus.Loading -> OnLoading()
+                is RespondStatus.Error -> OnError(favLocations.error)
+                is RespondStatus.Success -> OnSuccess(
+                    locations = favLocations.result,
+                    favViewModel = favViewModel,
+                    onFabClick = { showMap.value = true },
+                    onItemClick = { location ->
+                        // Set the selected location and show details
+                        selectedLocation.value = location
+                        // Call the weather API with the selected location data
+                        weatherViewModel.getCurrentWeather(
+                            lat = location.latitude,
+                            lon = location.longitude
+                        )
+                        showDetails.value = true
+                    }
+                )
+            }
+        }
+    }
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OnSuccess(favLocations: List<LocationDataClass>,onDelete: (location:LocationDataClass) -> Unit) {
-
-
+fun OnSuccess(
+    locations: List<LocationDataClass>,
+    favViewModel: FavouritsViewModel,
+    onFabClick: () -> Unit,
+    onItemClick: (LocationDataClass) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Red)
+            .background(Color.Cyan)
     ) {
-        if (favLocations.isEmpty()) {
-            Column ( Modifier
-                .fillMaxSize(),
+        if (locations.isEmpty()) {
+            Column(
+                Modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally){
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.empity_box_backgroundless),
-                    contentDescription = "Empity List",
+                    contentDescription = "Empty List",
                     Modifier.size(300.dp)
                 )
 
-                Text(text = stringResource(R.string.no_favourite_location_yet), fontSize = 30.sp)
-
+                Text(text = "No Selected Location yet", fontSize = 30.sp)
             }
-        }else{
+        } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp, top = 40.dp, end = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
-                itemsIndexed(favLocations) { index, location ->
-                    FavItem(location,onDelete)
+                itemsIndexed(locations) { index, location ->
+                    FavItem(location, favViewModel, { onItemClick(location) }
+                    )
                 }
             }
         }
-
         FloatingActionButton(
-            onClick = { /* Handle click and open map */ },
+            onClick = onFabClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 120.dp, end = 35.dp)
@@ -116,10 +152,11 @@ fun OnSuccess(favLocations: List<LocationDataClass>,onDelete: (location:Location
             shape = RoundedCornerShape(20.dp),
             containerColor = Color.White
         ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "FAB")
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
         }
     }
 }
+
 
 @Composable
 fun OnError(e: Throwable) {
@@ -137,14 +174,18 @@ fun OnLoading() {
     ) { CircularProgressIndicator() }
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FavItem(locationDataClass: LocationDataClass,onDelete:(location:LocationDataClass)->Unit) {
+fun FavItem(
+    locationDataClass: LocationDataClass,
+    favViewModel: FavouritsViewModel,
+    onItemClick: () -> Unit
+) {
     val context = LocalContext.current
-    var addresses = Geocoder(context).getFromLocation(
-        locationDataClass.latitude.toDouble(),
-        locationDataClass.longitude.toDouble(),
-        1
-    )
+    val parts = locationDataClass.CityName.split(", ")
+    val city = parts.getOrNull(0) ?: ""
+    val country = parts.getOrNull(1) ?: ""
 
     Row(
         modifier = Modifier
@@ -156,28 +197,43 @@ fun FavItem(locationDataClass: LocationDataClass,onDelete:(location:LocationData
                 Color.White,
                 shape = RoundedCornerShape(25.dp)
             )
+            .clickable {
+                onItemClick.invoke()
+            }
             .padding(15.dp)
             .background(
                 color = Color.Transparent
             ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+        horizontalArrangement = Arrangement.SpaceBetween,
+
+        ) {
 
         Text(
-            text = locationDataClass.CityName,
-            fontSize = 22.sp,
+            text = city,
+            fontSize = 20.sp,
+            color = Color.White
+        )
+        Spacer(Modifier.width(40.dp))
+        Text(
+            text = country,
+            fontSize = 16.sp,
             color = Color.White
         )
         Spacer(Modifier.width(80.dp))
         Icon(
             Icons.Filled.Delete,
             contentDescription = "Item Fav icon",
-            modifier = Modifier.size(25.dp).clickable {
-                onDelete.invoke(locationDataClass)
-            },
-
+            modifier = Modifier
+                .size(25.dp)
+                .clickable {
+                    favViewModel.deleteFavLocation(locationDataClass)
+                },
         )
+
     }
 
+}
+
+fun onRowClick(long: String, lat: String, viewModel: WeatherViewModel) {
 }

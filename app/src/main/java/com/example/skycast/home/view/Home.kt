@@ -1,15 +1,11 @@
 package com.example.skycast.home.view
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-/*
-import androidx.compose.foundation.layout.FlowRowScopeInstance.align
-*/
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,7 +34,8 @@ import androidx.compose.ui.unit.sp
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
-import com.example.skycast.utils.hasNetwork
+import com.example.skycast.home.viewModel.WeatherViewModel
+import com.example.skycast.utils.NetworkConnectivityObserver
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -46,45 +44,46 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
-    currenntWeather: RespondStatus<CurrentWeatherRespond>,
-    forecasteRespond: RespondStatus<ForecasteRespond>,
-    isConnected:Boolean
+    viewModel:WeatherViewModel,
+    lat :String,
+    long: String,
+
 ) {
+    var context = LocalContext.current
+   var connectivityObserver= NetworkConnectivityObserver(context)
+    var isConnected= connectivityObserver.observe().collectAsState(initial = true)
+    viewModel.getCurrentWeather(lat = lat, lon = long)
+    viewModel.getForecast(lat = lat, lon = long)
+    val currentWeather = viewModel.currentWeather.collectAsState().value
+    val forecastRespond = viewModel.forecast.collectAsState().value
 
     when {
-        currenntWeather is RespondStatus.Error || forecasteRespond is RespondStatus.Error -> {
+        currentWeather is RespondStatus.Error || forecastRespond is RespondStatus.Error -> {
             when {
-                currenntWeather is RespondStatus.Error -> OnError(currenntWeather.error)
+                currentWeather is RespondStatus.Error -> OnError(currentWeather.error)
             }
             when {
-                forecasteRespond is RespondStatus.Error -> OnError(forecasteRespond.error)
+                forecastRespond is RespondStatus.Error -> OnError(forecastRespond.error)
             }
         }
 
-        currenntWeather is RespondStatus.Loading || forecasteRespond is RespondStatus.Loading ->
+        currentWeather is RespondStatus.Loading || currentWeather is RespondStatus.Loading ->
             OnLoading()
 
-        currenntWeather is RespondStatus.Success && forecasteRespond is RespondStatus.Success ->
-            OnSuccess(currenntWeather.result, forecasteRespond.result,isConnected)
+        currentWeather is RespondStatus.Success && forecastRespond is RespondStatus.Success ->
+            OnHomeSuccess(currentWeather.result, forecastRespond.result,isConnected.value )
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: ForecasteRespond,isConnected: Boolean) {
+fun OnHomeSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: ForecasteRespond,isConnected: Boolean) {
     val c = "°C"
     val k = "°K"
     val f = "°F"
     var unit = c
     val currentTime = remember { mutableStateOf(getCurrentTime().toString()) }
     val context = LocalContext.current
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list.size}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[1].dtTxt}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[8].dtTxt}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[16].dtTxt}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[24].dtTxt}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[32].dtTxt}")
-    Log.i("TAG", "MainScreen: ${forecasteRespond.list[39].dtTxt}")
 
     LazyColumn(
         modifier = Modifier
@@ -108,7 +107,7 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)/*.align(Alignment.CenterVertically)*/,
+                    .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
@@ -170,14 +169,6 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
             }
         }
 
-
-
-
-
-
-
-
-
         item { Spacer(modifier = Modifier.height(32.dp)) }
 
         item {
@@ -233,7 +224,6 @@ fun OnSuccess(currenntWeather: CurrentWeatherRespond, forecasteRespond: Forecast
 
         items(forecasteRespond.list.size) { index ->
             val listIndex = (index * 8)
-            Log.i("TAG", "OnSuccess: Index = $listIndex")
             ForecastItem(forecasteRespond.list[index])
         }
     }

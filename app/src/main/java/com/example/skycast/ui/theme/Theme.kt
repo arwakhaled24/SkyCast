@@ -8,7 +8,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -23,19 +22,20 @@ import java.time.LocalTime
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF2196F3),
     secondary = Color(0xFFBBDEFB),
-    tertiary = Color(0xFFE3F2FD)
-)
+    tertiary = Color(0xFFE3F2FD),
+    background = Color(0x00000080),
+
+    )
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF2196F3), // Blue
     secondary = Color(0xFFBBDEFB),
     tertiary = Color(-0x1c0d03),
-    background = Color(0x00031A3C),
+    background = Color(0x00000080),
     surface = Color(-0x4c1a04),
     onPrimary = Color.White,
     onBackground = Color.Black,
     onSurface = Color.Black,
-
 
 
     /* Other default colors to override
@@ -88,6 +88,7 @@ fun SkyCastTheme(
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -95,7 +96,7 @@ fun SkyCastTheme(
     val backgroundColor = if (isMorning) MorningBackground else NightBackground
     val textColor = if (isMorning) MorningText else NightText
 
-    Log.d("ThemeCheck", "Applied Background: $backgroundColor")
+    Log.d("TAG", "Applied Background: $backgroundColor")
 
     MaterialTheme(
         colorScheme = defaultColorScheme,

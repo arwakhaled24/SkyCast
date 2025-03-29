@@ -38,7 +38,6 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int) {
         ) {
             val pm = time - 12
             val am = time - 24
-            Log.i("TAG", "HourlyForecastItem: ${pm.absoluteValue}")
             Text(
                 text = if (time <= 12) "$time AM " else if (time <= 24) "$pm PM" else "$am AM",
                 color = Color.White
