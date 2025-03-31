@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.addTextChangedListener
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.ui.theme.BluePeriwinkle
+import com.example.skycast.ui.theme.PrimaryContainer
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
@@ -113,13 +116,13 @@ fun Map(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(bottom = 80.dp)
+                    .padding(bottom = 100.dp)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFF2196F3), RoundedCornerShape(12.dp))
-                        .padding(16.dp),
+                        .fillMaxWidth()//Color(0xFFA5BFCC)
+                        .background(Color(0xFFA5BFCC), RoundedCornerShape(12.dp))
+                        .padding(20.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -142,7 +145,13 @@ fun Map(
                                 )
                                 onLocationAdded()
                             },
-                            modifier = Modifier.fillMaxWidth(0.8f),
+                            modifier = Modifier.fillMaxWidth(0.8f).background(color = BluePeriwinkle),
+                            colors = ButtonColors(
+                                containerColor = BluePeriwinkle ,  // This correctly sets the button background color
+                                contentColor = Color.White,        // Text color inside the button
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.LightGray
+                            ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text("ADD TO FAVORITES", color = Color.White)

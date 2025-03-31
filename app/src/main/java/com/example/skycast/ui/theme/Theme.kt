@@ -22,6 +22,7 @@ val PureWhite = Color(0xFFFFFFFF)
 val OffWhite = Color(0xFFF8F7FF)
 val DarkGray = Color(0xFF333333)
 val MediumGray = Color(0xFF666666)
+val PrimaryContainer = Color(0xFFcfe2f3)
 
 private val LightColorScheme = lightColorScheme(
     primary = DeepPurple,        // Primary brand color
@@ -35,7 +36,10 @@ private val LightColorScheme = lightColorScheme(
     onBackground = DarkGray,     // Text/icons on background
     onSurface = DarkGray,        // Text/icons on surface
     surfaceVariant = PaleLavender, // Alternative surface color
-    onSurfaceVariant = DeepPurple // Text on alternative surface
+    onSurfaceVariant = DeepPurple, // Text on alternative surfac
+    onPrimaryContainer = PrimaryContainer
+
+
 )
 
 private val DarkColorScheme = darkColorScheme(

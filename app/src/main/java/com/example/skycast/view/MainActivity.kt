@@ -241,7 +241,7 @@ fun MainScreen(
         containerColor = Color(0xFFA5BFCC),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            NavigationBar (modifier = Modifier.background(Color(0xFF95a6c9))){
+            NavigationBar (modifier = Modifier.background(Color( 0xFFA5BFCC/*0xFF95a6c9*/))){
                 navItems.forEachIndexed({ index, screen ->
                     NavigationBarItem(
                         label = { screen.name },
@@ -261,11 +261,11 @@ fun MainScreen(
         AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
             slideIntoContainer(
                 animationSpec = tween(500, easing = EaseIn),
-                towards = Right
+                towards = Left
             ).with(
                 slideOutOfContainer(
                     animationSpec = tween(500, easing = EaseOut),
-                    towards = Left
+                    towards = Right
                 )
             )
         }) { targetState ->

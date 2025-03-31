@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -48,6 +49,10 @@ import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.home.view.Home
 import com.example.skycast.home.viewModel.WeatherViewModel
+import com.example.skycast.ui.theme.BluePeriwinkle
+import com.example.skycast.ui.theme.CloudWhite
+import com.example.skycast.ui.theme.PrimaryContainer
+import com.example.skycast.ui.theme.SilverGray
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -134,22 +139,10 @@ fun OnSuccess(
                             Text("UNDO")
                         }
                     },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(bottom = 80.dp)
                 ) {
                     Text("Location removed from favorites")
                 }
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onFabClick,
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
-            ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
             }
         }
     ) { innerPadding ->
@@ -198,6 +191,20 @@ fun OnSuccess(
                         )
                     }
                 }
+
+            }
+            FloatingActionButton(
+                onClick = onFabClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 120.dp, end = 35.dp)
+                    .width(50.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(20.dp),
+                containerColor = PrimaryContainer,
+
+                ) {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
             }
         }
     }
