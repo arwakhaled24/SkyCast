@@ -4,17 +4,17 @@ import com.example.skycast.data.LocalData.room.Dao
 import com.example.skycast.data.dataClasses.LocationDataClass
 import kotlinx.coroutines.flow.Flow
 
-class LocalDataSource(val dao: Dao) {
+class LocalDataSource(val dao: Dao) : ILocalDataSource {
 
-    suspend fun getAllFavLocation(): Flow<List<LocationDataClass>> {
+    override suspend fun getAllFavLocation(): Flow<List<LocationDataClass>> {
         return dao.getAll()
     }
 
-    suspend fun deleteFavLocation(locationDataClass: LocationDataClass):Int{
+    override suspend fun deleteFavLocation(locationDataClass: LocationDataClass):Int{
         return dao.deleteFavLocation(locationDataClass)
     }
 
-    suspend fun addFavLocation(locationDataClass: LocationDataClass):Long{
+    override suspend fun addFavLocation(locationDataClass: LocationDataClass):Long{
         return dao.insertFavLocation(locationDataClass)
     }
 

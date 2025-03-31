@@ -109,37 +109,6 @@ fun Map(
                 }
             }
 
-            /*
-        Column(modifier = Modifier.fillMaxSize(), Arrangement.Top,Alignment.CenterHorizontally) {
-            DockedSearchBar(
-                query = query.value,
-                onQueryChange = { newQuery ->
-                    query.value = newQuery
-                    scope.launch {
-                        for (i in names) {
-                            searchFlow.emit(
-                                names.filter { name ->
-                                    name.contains(newQuery, ignoreCase = true)
-                                }
-                            )
-                        }
-                    }
-                },
-                onSearch = { },
-                active = activ.value,
-                onActiveChange = { activ.value = it },
-            ) {
-                if(query.value.length>0)
-                searchResults.value.forEach { result ->
-                    println("search  result = $result")
-                    Row() {
-                        Text(text = result)
-                    }
-
-                }
-            }
-        }
-*/
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -209,6 +178,8 @@ fun selectLocation(
                 )
 
             } else {
+
+
             }
         }
     }

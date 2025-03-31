@@ -1,5 +1,6 @@
 package com.example.skycast.data
 
+import kotlinx.serialization.Serializable
 
 sealed class RespondStatus<out T> {
     data object Loading : RespondStatus<Nothing>()

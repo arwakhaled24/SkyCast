@@ -1,6 +1,9 @@
 package com.example.skycast.utils
 
+import kotlinx.serialization.Serializable
+@Serializable
 class Constant {
+
     companion object {
         const val API_KEY: String = "84153d7ef691f4e68d94a9475aa7d827"
         const val BASE_URL: String = "https://api.openweathermap.org/"
@@ -13,6 +16,9 @@ class Constant {
             const val LONGTUDE = "lon"
             const val LATITUDE = "lat"
             const val APP_ID = "appid"
+            var TEMPERATURE = "temperature"
+            const val MeasurementUnit = "MeasurementUnit"
+            val windSpeed="windSpeed"
             const val TIMESTAMPS_NUM =
                 "cnt" //	A number of timestamps, which will be returned in the API response. Learn more
         }

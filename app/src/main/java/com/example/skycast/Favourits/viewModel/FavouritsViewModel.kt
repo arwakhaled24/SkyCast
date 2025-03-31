@@ -6,13 +6,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.data.repository.IWeatherRepository
 import com.example.skycast.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class FavouritsViewModel(private val repository: WeatherRepository) : ViewModel() {
+class FavouritsViewModel(private val repository: IWeatherRepository) : ViewModel() {
 
     private val _favouritLocationList = MutableStateFlow<RespondStatus<List<LocationDataClass>>>(RespondStatus.Loading)
     val favouritLocationList = _favouritLocationList.asStateFlow()

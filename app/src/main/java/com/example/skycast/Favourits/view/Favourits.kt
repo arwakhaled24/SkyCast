@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
@@ -52,8 +53,10 @@ import com.example.skycast.home.viewModel.WeatherViewModel
 fun Favourits(
     favViewModel: FavouritsViewModel,
     weatherViewModel: WeatherViewModel,
+/*
     onNavigateToMap: () -> Unit,
     onNavigateToDetails: (latitude: String, longitude: String, locationName: String) -> Unit
+*/
 ) {
     favViewModel.getAllFav()
     val showMap = remember { mutableStateOf(false) }
@@ -72,8 +75,9 @@ fun Favourits(
         } else if (showDetails.value && selectedLocation.value != null) {
             selectedLocation.value?.let {
                 Home(
+                    it.latitude,
+                    it.longitude,
                     weatherViewModel,
-                    it.latitude, it.longitude
                 )
             }
         } else {
@@ -114,7 +118,7 @@ fun OnSuccess(
             .fillMaxSize()
             .background(Color(0xFFA5BFCC)),
 
-    ) {
+        ) {
         if (locations.isEmpty()) {
             Column(
                 Modifier
@@ -134,7 +138,10 @@ fun OnSuccess(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp, top = 40.dp, end = 10.dp),
+                    .padding( top = 40.dp,
+                        start = 5.dp,
+                        end = 5.dp,
+                        bottom = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 itemsIndexed(locations) { index, location ->
@@ -188,51 +195,50 @@ fun FavItem(
     val city = parts.getOrNull(0) ?: ""
     val country = parts.getOrNull(1) ?: ""
 
+
     Row(
         modifier = Modifier
-            .fillMaxHeight(fraction = .8F)
             .fillMaxWidth()
-            .background(color = Color.Transparent)
-            .border(
-                3.dp,
-                Color.White,
-                shape = RoundedCornerShape(25.dp)
-            )
-            .clickable {
-                onItemClick.invoke()
-            }
-            .padding(15.dp)
+            .padding(vertical = 8.dp, horizontal = 16.dp)
             .background(
-                color = Color.Transparent
-            ),
+                color = Color.Gray.copy(alpha = 0.6f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable { onItemClick.invoke() }
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
         ) {
+            Text(
+                text = city,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = country,
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
+            )
+        }
 
-        Text(
-            text = city,
-            fontSize = 20.sp,
-            color = Color.White
-        )
-        Spacer(Modifier.width(40.dp))
-        Text(
-            text = country,
-            fontSize = 16.sp,
-            color = Color.White
-        )
-        Spacer(Modifier.width(80.dp))
         Icon(
             Icons.Filled.Delete,
-            contentDescription = "Item Fav icon",
+            contentDescription = "Delete favorite",
             modifier = Modifier
-                .size(25.dp)
+                .size(28.dp)
                 .clickable {
                     favViewModel.deleteFavLocation(locationDataClass)
                 },
+            tint = Color.White.copy(alpha = 0.8f)
         )
-
     }
+
 
 }
 

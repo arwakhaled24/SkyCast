@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.Response
 
-class WearherRemoreDataSourse(val retrofitHelper: RetrofitHelper) {
+class WearherRemoreDataSourse(val retrofitHelper: RetrofitHelper) : IWearherRemoreDataSourse {
 
-    suspend fun getCurrentWeather(
+    override suspend fun getCurrentWeather(
         lat: String,
         lon: String,
         language: String,
@@ -25,7 +25,7 @@ class WearherRemoreDataSourse(val retrofitHelper: RetrofitHelper) {
         return flowOf(result)
     }
 
-    suspend fun getForecast(
+    override suspend fun getForecast(
         lat: String,
         lon: String,
         language: String,

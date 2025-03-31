@@ -7,13 +7,16 @@ plugins {
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.1.10"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id ("kotlin-parcelize")
 
 }
 android {
     namespace = "com.example.skycast"
     compileSdk = 35
 
-
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
     defaultConfig {
         applicationId = "com.example.skycast"
         minSdk = 24
@@ -111,6 +114,15 @@ dependencies {
 
     implementation(libs.places)
     implementation(libs.play.services.maps)
+
+    // shared pref settings
+    implementation("androidx.preference:preference-ktx:1.2.0")
+
+
+
+    //testing view model
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
+
 
 
 

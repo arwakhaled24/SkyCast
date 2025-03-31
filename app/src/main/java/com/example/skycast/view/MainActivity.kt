@@ -53,7 +53,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.skycast.Favourits.AppDestinations
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.Favourits.viewModel.MyFavFactory
@@ -105,7 +104,6 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
-        Log.i("TAG", "onCreate: ${getMetaDataValue(this)} ")
         val apiKey = getMetaDataValue(this)
         if (!Places.isInitialized() && apiKey != null) {
             Places.initialize(applicationContext, apiKey)
@@ -268,21 +266,21 @@ fun MainScreen(
                 slideOutOfContainer(
                     animationSpec = tween(500, easing = EaseOut),
                     towards = Left
-
                 )
             )
         }) { targetState ->
             when (targetState) {
                 0 -> Home(
-                    weatherViewModel,
+
                     lat = currentLocation.latitude.toString(),
                     long = currentLocation.longitude.toString(),
+                    weatherViewModel,
                 )
 
                 1 -> Favourits(
                     favViewModel,
                     weatherViewModel,
-                    { navController.navigate(AppDestinations.MAP_ROUTE) },
+                /*    { navController.navigate(AppDestinations.MAP_ROUTE) },
                     onNavigateToDetails = { latitude, longitude, locationName ->
                         weatherViewModel.getCurrentWeather(latitude, longitude)
                         navController.navigate(
@@ -292,40 +290,12 @@ fun MainScreen(
                                 locationName = locationName.replace("/", "-")
                             )
                         )
-                    })
+                    }*/)
 
                 2 -> Alert()
                 3 -> Setting()
             }
         }
-    }
-
-
-}
-
-@Composable
-fun BottomBar(navController: NavHostController) {
-    val selectedIndex = remember { mutableStateOf(0) }
-    val navItems = listOf(
-        NavItem("Home", Icons.Default.Home),
-        NavItem("Favorites", Icons.Default.Favorite),
-        NavItem("Notification", Icons.Default.Notifications),
-        NavItem("Settings", Icons.Default.List)
-    )
-    NavigationBar {
-        navItems.forEachIndexed({ index, screen ->
-            NavigationBarItem(
-                label = { screen.name },
-                icon = {
-                    Icon(
-                        imageVector = screen.icon,
-                        contentDescription = "navigation icon"
-                    )
-                },
-                onClick = { selectedIndex.value = index },
-                selected = selectedIndex.value == index,
-            )
-        })
     }
 }
 

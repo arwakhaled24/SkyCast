@@ -62,7 +62,7 @@ class LocalDataSourceTest {
         val inserted = locatDataSource.getAllFavLocation().first() // list
         assertTrue(inserted.isNotEmpty())
 
-        locatDataSource.deleteFavLocation(inserted.first()) //first in the list
+        locatDataSource.deleteFavLocation(inserted.first()) //first in the list law m4 kda haygeb 3dd el lists not he items
 
 
         val flow = locatDataSource.getAllFavLocation().first()

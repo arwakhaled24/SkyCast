@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
@@ -52,10 +53,9 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
-    viewModel: WeatherViewModel,
     lat: String,
     long: String,
-
+     viewModel: WeatherViewModel
     ) {
     var context = LocalContext.current
     var connectivityObserver = NetworkConnectivityObserver(context)

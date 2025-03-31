@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
+
 class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() {
 
     private var _currentWeather = MutableStateFlow<RespondStatus<CurrentWeatherRespond>>(RespondStatus.Loading)
@@ -42,7 +43,6 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
                 }
             }
         }
-
     }
 
     fun getForecast(
