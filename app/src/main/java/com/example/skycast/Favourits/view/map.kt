@@ -147,8 +147,8 @@ fun Map(
                             },
                             modifier = Modifier.fillMaxWidth(0.8f).background(color = BluePeriwinkle),
                             colors = ButtonColors(
-                                containerColor = BluePeriwinkle ,  // This correctly sets the button background color
-                                contentColor = Color.White,        // Text color inside the button
+                                containerColor = BluePeriwinkle ,  //  button background color
+                                contentColor = Color.White,        // Text color
                                 disabledContainerColor = Color.Gray,
                                 disabledContentColor = Color.LightGray
                             ),

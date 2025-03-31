@@ -123,6 +123,7 @@ dependencies {
     //testing view model
     testImplementation ("androidx.arch.core:core-testing:2.2.0")
 
+/// work manager
     val work_version = "2.10.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
 

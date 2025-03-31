@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,41 +29,43 @@ fun ForecastItem(weatherItem: WeatherItem) {
     val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val date = LocalDate.parse(weatherItem.dtTxt, firstApiFormat)
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .background(Color.Gray.copy(alpha = 0.6f), shape = RoundedCornerShape(12.dp))
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 16.dp)
+                .background(Color.Gray.copy(alpha = 0.6f), shape = RoundedCornerShape(12.dp))
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
 
-    ) {
-        Text(
-            text = date.dayOfWeek.name.take(3),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            ) {
             Text(
-                text = "${weatherItem.main.temp.toInt()}°",
+                text = date.dayOfWeek.name.take(3),
                 color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "${weatherItem.main.temp.toInt()}°",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "H: ${weatherItem.main.tempMax.toInt()}°  L: ${weatherItem.main.tempMin.toInt()}°",
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
+
             Text(
-                text = "H: ${weatherItem.main.tempMax.toInt()}°  L: ${weatherItem.main.tempMin.toInt()}°",
-                color = Color.White,
-                fontSize = 14.sp
+                text = getIcon(weatherItem.weather[0].icon),
+                fontSize = 28.sp,
+                modifier = Modifier.padding(end = 4.dp)
             )
         }
 
-        Text(
-            text = getIcon(weatherItem.weather[0].icon),
-            fontSize = 28.sp,
-            modifier = Modifier.padding(end = 4.dp)
-        )
-    }
+
 }
