@@ -1,18 +1,17 @@
 package com.example.skycast.Favourits.view
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,12 +21,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -89,9 +90,9 @@ fun Favourits(
                     favViewModel = favViewModel,
                     onFabClick = { showMap.value = true },
                     onItemClick = { location ->
-                        // Set the selected location and show details
+
                         selectedLocation.value = location
-                        // Call the weather API with the selected location data
+
                         weatherViewModel.getCurrentWeather(
                             lat = location.latitude,
                             lon = location.longitude
@@ -104,7 +105,6 @@ fun Favourits(
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnSuccess(
@@ -113,58 +113,95 @@ fun OnSuccess(
     onFabClick: () -> Unit,
     onItemClick: (LocationDataClass) -> Unit
 ) {
-    Box(
+    val showSnackbar = remember { mutableStateOf(false) }
+    val deletedItem = remember { mutableStateOf<LocationDataClass?>(null) }
+
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFA5BFCC)),
-
-        ) {
-        if (locations.isEmpty()) {
-            Column(
-                Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.empity_box_backgroundless),
-                    contentDescription = "Empty List",
-                    Modifier.size(300.dp)
-                )
-
-                Text(text = "No Selected Location yet", fontSize = 30.sp)
+        snackbarHost = {
+            if (showSnackbar.value && deletedItem.value != null) {
+                androidx.compose.material3.Snackbar(
+                    action = {
+                        androidx.compose.material3.TextButton(
+                            onClick = {
+                                deletedItem.value?.let { favViewModel.addFavLocation(it) }
+                                showSnackbar.value = false
+                                deletedItem.value = null
+                            }
+                        ) {
+                            Text("UNDO")
+                        }
+                    },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text("Location removed from favorites")
+                }
             }
-        } else {
-            LazyColumn(
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onFabClick,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding( top = 40.dp,
-                        start = 5.dp,
-                        end = 5.dp,
-                        bottom = 120.dp),
-                verticalArrangement = Arrangement.spacedBy(15.dp)
+                    .width(50.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(20.dp),
+                containerColor = Color.White
             ) {
-                itemsIndexed(locations) { index, location ->
-                    FavItem(location, favViewModel, { onItemClick(location) }
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(Color(0xFFA5BFCC))
+        ) {
+            if (locations.isEmpty()) {
+                Column(
+                    Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.empity_box_backgroundless),
+                        contentDescription = "Empty List",
+                        Modifier.size(300.dp)
                     )
+
+                    Text(text = "No Selected Location yet", fontSize = 30.sp)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            top = 40.dp,
+                            start = 5.dp,
+                            end = 5.dp,
+                            bottom = 5.dp
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    itemsIndexed(locations) { _, location ->
+                        FavItem(
+                            location = location,
+                            onItemClick = { onItemClick(location) },
+                            onDeleteClick = {
+                                deletedItem.value = location
+                                favViewModel.deleteFavLocation(location)
+                                showSnackbar.value = true
+                            }
+                        )
+                    }
                 }
             }
         }
-        FloatingActionButton(
-            onClick = onFabClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 120.dp, end = 35.dp)
-                .width(50.dp)
-                .height(50.dp),
-            shape = RoundedCornerShape(20.dp),
-            containerColor = Color.White
-        ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
-        }
     }
 }
-
 
 @Composable
 fun OnError(e: Throwable) {
@@ -183,18 +220,17 @@ fun OnLoading() {
 }
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FavItem(
-    locationDataClass: LocationDataClass,
-    favViewModel: FavouritsViewModel,
-    onItemClick: () -> Unit
+    location: LocationDataClass,
+    onItemClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val parts = locationDataClass.CityName.split(", ")
+    val parts = location.CityName.split(", ")
     val city = parts.getOrNull(0) ?: ""
     val country = parts.getOrNull(1) ?: ""
-
 
     Row(
         modifier = Modifier
@@ -204,7 +240,7 @@ fun FavItem(
                 color = Color.Gray.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(12.dp)
             )
-            .clickable { onItemClick.invoke() }
+            .clickable { onItemClick() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -232,15 +268,10 @@ fun FavItem(
             contentDescription = "Delete favorite",
             modifier = Modifier
                 .size(28.dp)
-                .clickable {
-                    favViewModel.deleteFavLocation(locationDataClass)
-                },
+                .clickable { onDeleteClick() },
             tint = Color.White.copy(alpha = 0.8f)
         )
     }
-
-
 }
 
-fun onRowClick(long: String, lat: String, viewModel: WeatherViewModel) {
-}
+
