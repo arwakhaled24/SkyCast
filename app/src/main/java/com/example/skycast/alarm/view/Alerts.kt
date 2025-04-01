@@ -1,5 +1,10 @@
 package com.example.skycast.alarm.view
 
+import android.annotation.SuppressLint
+import android.location.Location
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -27,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +43,8 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,15 +57,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.skycast.R
+import com.example.skycast.alarm.AlarmViewModel
 import com.example.skycast.alarm.workManager.MyWorker
+import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.data.dataClasses.NotificationDataClass
+import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.ui.theme.PrimaryContainer
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -64,13 +79,17 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Alert() {
-    AlertScreen()
+fun Alert(alrmViewModel: AlarmViewModel,currentLocation: Location) {
+    AlertScreen(alrmViewModel,currentLocation)
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlertScreen() {
+fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -87,7 +106,6 @@ fun AlertScreen() {
                 }.timeInMillis
                 return utcTimeMillis >= todayMillis
             }
-
             override fun isSelectableYear(year: Int): Boolean {
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 return year >= currentYear
@@ -99,41 +117,88 @@ fun AlertScreen() {
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = true,
+        is24Hour = false,
     )
 
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFA5BFCC)),
-    ) {
-        if (true) {
-            Column(
-                Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.empity_box_backgroundless),
-                    contentDescription = "Empity List",
-                    Modifier.size(300.dp)
-                )
-
-                Text(text = "No Recorded Alerts Yet", fontSize = 30.sp)
-
+    alrmViewModel.getAllNotification()
+    val notificationList = alrmViewModel.notificationLis.collectAsState().value
+    val showSnackbar = remember { mutableStateOf(false) }
+    val deletedItem = remember { mutableStateOf<NotificationDataClass?>(null) }
+    Scaffold (modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFA5BFCC)),
+        snackbarHost = {
+            if (showSnackbar.value && deletedItem.value != null) {
+                LaunchedEffect(showSnackbar.value) {
+                    delay(2000) // Show for 3 seconds
+                    showSnackbar.value = false
+                    deletedItem.value = null
+                }
+                androidx.compose.material3.Snackbar(
+                    action = {
+                        androidx.compose.material3.TextButton(
+                            onClick = {
+                                deletedItem.value?.let { alrmViewModel.addNotidication(it) }
+                                showSnackbar.value = false
+                                deletedItem.value = null
+                            }
+                        ) {
+                            Text("UNDO")
+                        }
+                    },
+                    modifier = Modifier.padding(bottom = 80.dp)
+                ) {
+                    Text("Alarm Canceled")
+                }
             }
-        } else {
+        }){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFA5BFCC)),
+        ) {
+            if (notificationList.isEmpty()) {
+                val context = LocalContext.current
+                Column(
+                    Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.empity_box_backgroundless),
+                        contentDescription = "Empity List",
+                        Modifier.size(300.dp)
+                    )
 
-        }
+                    Text(text = "No Recorded Alerts Yet", fontSize = 30.sp)
+
+                }
+            } else {
+                val context = LocalContext.current
+                LazyColumn {
+                    items(notificationList.size){
+                            index ->  NotificationRow(
+                        notificationList[index],
+                        onDeleteClick=  {
+                            deletedItem.value = notificationList[index]
+                            showSnackbar.value = true
+                            alrmViewModel.deleteNotification(notificationList[index].id)
+                            WorkManager.getInstance(context).cancelWorkById(notificationList[index].id)
+                        }
+                    )
+                    }
+                }
+            }
 
             Box(
                 modifier = Modifier
-                    .fillMaxSize().padding(bottom = 120.dp)
+                    .fillMaxSize()
+                    .padding(bottom = 120.dp)
             ) {
 
                 val context = LocalContext.current
@@ -153,141 +218,154 @@ fun AlertScreen() {
                 }
             }
         }
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                val dateRangePickerState = rememberDateRangePickerState()
 
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState
-        ) {
-            val dateRangePickerState = rememberDateRangePickerState()
+                Column(horizontalAlignment = AbsoluteAlignment.Right) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedDate,
+                            onValueChange = { },
+                            label = { Text("Date") },
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = { showDatePicker = !showDatePicker }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Set date"
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp)
+                        )
 
-            Column(horizontalAlignment = AbsoluteAlignment.Right) {
-             /*   Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("hi arwaa", textAlign = TextAlign.Center)
-                }*/
-
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = selectedDate,
-                        onValueChange = { },
-                        label = { Text("Date") },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { showDatePicker = !showDatePicker }) {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Set date"
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(64.dp)
-                    )
-
-                    if (showDatePicker) {
-                        Popup(
-                            onDismissRequest = { showDatePicker = false },
-                            alignment = Alignment.TopStart
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .offset(y = 64.dp)
-                                    .shadow(elevation = 0.dp)
-                                    .background(MaterialTheme.colorScheme.surface)
-                                    .padding(bottom = 100.dp),
-                                horizontalAlignment = AbsoluteAlignment.Right
+                        if (showDatePicker) {
+                            Popup(
+                                onDismissRequest = { showDatePicker = false },
+                                alignment = Alignment.TopStart
                             ) {
-                                DatePicker(
-                                    state = datePickerState,
-                                    showModeToggle = false,
-                                )
-
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.Absolute.Right
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .offset(y = 64.dp)
+                                        .shadow(elevation = 0.dp)
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .padding(bottom = 100.dp),
+                                    horizontalAlignment = AbsoluteAlignment.Right
                                 ) {
-                                    TextButton(onClick = {
-                                        showDatePicker = false
-                                        showBottomSheet = false
-                                    }) {
-                                        Text(
-                                            text = "cancel",
-                                            color = Color.Red.copy(alpha = 0.5f)
-                                        )
-                                    }
+                                    DatePicker(
+                                        state = datePickerState,
+                                        showModeToggle = false,
+                                    )
 
-                                    TextButton(onClick = {
-                                        showDatePicker = false
-                                    }) {
-                                        Text(text = "okay")
-                                    }
+                                    Row(
+                                        modifier = Modifier,
+                                        horizontalArrangement = Arrangement.Absolute.Right
+                                    ) {
+                                        TextButton(onClick = {
+                                            showDatePicker = false
+                                            showBottomSheet = false
+                                        }) {
+                                            Text(
+                                                text = "cancel",
+                                                color = Color.Red.copy(alpha = 0.5f)
+                                            )
+                                        }
 
-                                    Spacer(modifier = Modifier.fillMaxWidth(0.1F))
+                                        TextButton(onClick = {
+                                            showDatePicker = false
+                                        }) {
+                                            Text(text = "okay")
+                                        }
+
+                                        Spacer(modifier = Modifier.fillMaxWidth(0.1F))
+                                    }
                                 }
                             }
                         }
-
-
                     }
-                }
 
-                Spacer(Modifier.fillMaxHeight(.05f))
+                    Spacer(Modifier.fillMaxHeight(.05f))
 
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    TimeInput(
-                        state = timePickerState,
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.Absolute.Right
-                ) {
-                    val context = LocalContext.current
-                    TextButton(onClick = {
-                        showBottomSheet = false
-                    }) {
-                        Text(
-                            text = "cancel",
-                            color = Color.Red.copy(alpha = 0.5f)
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        TimeInput(
+                            state = timePickerState,
                         )
                     }
-                    TextButton(onClick = {
-                        showBottomSheet = false
-                        var request = OneTimeWorkRequestBuilder<MyWorker>()
-                            /* .setInputMerger(
-                                 workDataOf(
-                                    Data.LocationDataClass
-                                 )
-                             )*/
-                            .setInitialDelay(3, TimeUnit.SECONDS)//have to set the right delay
-                            .build()
-                        WorkManager.getInstance(context).enqueue(request)
-
-                    }) {
-                        Text("add Notification")
+                    Row(
+                        horizontalArrangement = Arrangement.Absolute.Right
+                    ) {
+                        val context = LocalContext.current
+                        TextButton(onClick = {
+                            showBottomSheet = false
+                        }) {
+                            Text(
+                                text = "cancel",
+                                color = Color.Red.copy(alpha = 0.5f)
+                            )
+                        }
+                        TextButton(onClick = {
+                            val currentTimeMillis = System.currentTimeMillis()
+                            val selectedCalendar = Calendar.getInstance().apply {
+                                timeInMillis = datePickerState.selectedDateMillis ?: currentTimeMillis
+                                set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                                set(Calendar.MINUTE, timePickerState.minute)
+                                set(Calendar.SECOND, 0)
+                                set(Calendar.MILLISECOND, 0)
+                            }
+                            val selectedTimeMillis = selectedCalendar.timeInMillis
+                            if (selectedTimeMillis <= currentTimeMillis) {
+                                Toast.makeText(
+                                    context,
+                                    "Please select a future time",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                showBottomSheet = false
+                                var request = OneTimeWorkRequestBuilder<MyWorker>()
+                                    .setInitialDelay((selectedTimeMillis-currentTimeMillis), TimeUnit.MILLISECONDS)
+                                    .setInputData(
+                                        workDataOf(
+                                        "latitude" to currenTocation.latitude,
+                                        "longitude" to currenTocation.longitude),
+                                    ).build()
+                                WorkManager.getInstance(context).enqueue(request)
+                                alrmViewModel.addNotidication(NotificationDataClass(
+                                    request.id,
+                                    time = selectedDate,
+                                    date = "${timePickerState.hour} : ${timePickerState.minute}"
+                                ))
+                            }
+                        }) {
+                            Text("add Notification")
+                        }
+                        Spacer(Modifier.fillMaxWidth(.1f))
                     }
-                    Spacer(Modifier.fillMaxWidth(.1f))
+
+                    Spacer(Modifier.fillMaxHeight(.1f))
+
                 }
 
-                Spacer(Modifier.fillMaxHeight(.1f))
 
             }
-
-
         }
     }
+
 }
+
 
 
 fun convertMillisToDate(millis: Long): String {

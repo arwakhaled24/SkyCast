@@ -56,10 +56,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.Favourits.viewModel.MyFavFactory
+import com.example.skycast.alarm.AlarmFactory
+import com.example.skycast.alarm.AlarmViewModel
 import com.example.skycast.alarm.view.Alert
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
 import com.example.skycast.data.dataClasses.NavItem
+import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
 import com.example.skycast.data.repository.WeatherRepository
@@ -84,6 +87,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var weatherViewModel: WeatherViewModel
     lateinit var favViewModel: FavouritsViewModel
+    lateinit var alarmViewModel: AlarmViewModel
     lateinit var currentLocation: MutableState<Location>
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -95,10 +99,18 @@ class MainActivity : ComponentActivity() {
         var myFactory = MyFactory(
             WeatherRepository.getInstance(
                 WearherRemoreDataSourse(RetrofitHelper(context = this)),
-                LocalDataSource(MyDatabase.getInstance(context = this).getDao())
+                LocalDataSource(
+                    MyDatabase.getInstance(context = this).getDao(),
+                )
             )
         )
         var myFavFactory = MyFavFactory(
+            WeatherRepository.getInstance(
+                WearherRemoreDataSourse(RetrofitHelper(context = this)),
+                LocalDataSource(MyDatabase.getInstance(context = this).getDao())
+            )
+        )
+        var MyalarmFactory= AlarmFactory(
             WeatherRepository.getInstance(
                 WearherRemoreDataSourse(RetrofitHelper(context = this)),
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
@@ -111,9 +123,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             weatherViewModel = viewModel(factory = myFactory)
             favViewModel = viewModel(factory = myFavFactory)
+            alarmViewModel = viewModel(factory = MyalarmFactory)
             currentLocation = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
             SkyCastTheme {
-                MainScreen(weatherViewModel, favViewModel, currentLocation.value)
+                MainScreen(weatherViewModel, favViewModel,alarmViewModel, currentLocation.value)
 
             }
 
@@ -220,8 +233,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     weatherViewModel: WeatherViewModel,
     favViewModel: FavouritsViewModel,
+    alarmViewModel: AlarmViewModel,
     currentLocation: Location,
-    navController: NavHostController = rememberNavController()
 ) {
     val selectedIndex = remember { mutableStateOf(0) }
     val msg = weatherViewModel.message.observeAsState()
@@ -292,7 +305,7 @@ fun MainScreen(
                         )
                     }*/)
 
-                2 -> Alert()
+                2 -> Alert(alarmViewModel, currentLocation )
                 3 -> Setting()
             }
         }

@@ -32,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,7 @@ import com.example.skycast.ui.theme.BluePeriwinkle
 import com.example.skycast.ui.theme.CloudWhite
 import com.example.skycast.ui.theme.PrimaryContainer
 import com.example.skycast.ui.theme.SilverGray
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -126,7 +128,13 @@ fun OnSuccess(
             .fillMaxSize()
             .background(Color(0xFFA5BFCC)),
         snackbarHost = {
+
             if (showSnackbar.value && deletedItem.value != null) {
+                LaunchedEffect(showSnackbar.value) {
+                    delay(2000)
+                    showSnackbar.value = false
+                    deletedItem.value = null
+                }
                 androidx.compose.material3.Snackbar(
                     action = {
                         androidx.compose.material3.TextButton(

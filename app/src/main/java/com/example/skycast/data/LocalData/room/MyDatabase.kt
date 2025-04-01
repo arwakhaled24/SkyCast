@@ -5,8 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.data.dataClasses.NotificationDataClass
 
-@Database(entities = arrayOf(LocationDataClass::class), version = 1)
+@Database(entities = arrayOf(LocationDataClass::class,NotificationDataClass::class), version = 1)
 abstract class MyDatabase : RoomDatabase() {
 
     abstract fun getDao(): Dao
