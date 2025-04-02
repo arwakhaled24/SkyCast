@@ -1,7 +1,5 @@
-package com.example.skycast.view.screens
+package com.example.skycast.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,62 +13,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.skycast.R
 
-@Preview
-@Composable
-fun Setting() {
-    Column(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
-        .background(Color(0xFFA5BFCC))) {
-        Spacer(modifier = Modifier.height(25.dp))
-        CardView(
-            R.string.language, listOf(
-                stringResource(R.string.english),
-                stringResource(R.string.arabic)
-            ), R.drawable.baseline_language_24
-        )
-        Spacer(modifier = Modifier.height(25.dp))
-
-        CardView(
-            R.string.temperture_unit, listOf(
-                stringResource(R.string.celsius_c),
-                stringResource(R.string.kelvin_k),
-                stringResource(R.string.fahrenheit_f)
-            ), R.drawable.temperature_svgrepo_com
-        )
-        Spacer(modifier = Modifier.height(25.dp))
-
-        CardView(
-            R.string.edit_location, listOf(
-                stringResource(R.string.gps),
-                stringResource(R.string.map)
-            ), R.drawable.baseline_edit_location_alt_24
-        )
-        Spacer(modifier = Modifier.height(25.dp))
-
-        CardView(
-            R.string.wind_spean_unit, listOf(
-                stringResource(R.string.m_sec),
-                stringResource(R.string.mile_houre)
-            ), R.drawable.wind_svgrepo_com
-        )
-
-    }
-}
 
 @Composable
-fun CardView(title: Int, options: List<String>, icon: Int) {
+fun CardView(title: Int, options: List<String>, icon: Int,onOptionSelected:(String) -> Unit,selectedOption:String) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp,
@@ -85,16 +38,16 @@ fun CardView(title: Int, options: List<String>, icon: Int) {
             Text(text = stringResource(title), fontSize = 22.sp)
         }
         Row {
-            RadioButtonSingleSelection(options)
+            RadioButtonSingleSelection(options,onOptionSelected,selectedOption)
         }
     }
 }
 
 
 @Composable
-fun RadioButtonSingleSelection(listOptions: List<String>) {
+fun RadioButtonSingleSelection(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String=listOptions[0]) {
     val radioOptions = listOptions
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+//val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
     Row(
         modifier = Modifier
             .selectableGroup()
@@ -114,7 +67,7 @@ fun RadioButtonSingleSelection(listOptions: List<String>) {
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = null
+                    onClick = {onOptionSelected(text)}
                 )
                 Text(
                     text = text,

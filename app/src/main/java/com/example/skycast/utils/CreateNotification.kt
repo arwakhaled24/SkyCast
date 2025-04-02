@@ -1,6 +1,5 @@
 package com.example.skycast.utils
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -12,7 +11,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.skycast.R
-import com.example.skycast.view.MainActivity
+import com.example.skycast.MainActivity
 
 private const val CHANNEL_ID = "1"
 

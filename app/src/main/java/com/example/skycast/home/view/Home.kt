@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,12 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.skycast.data.RespondStatus
+import com.example.skycast.data.dataClasses.Main
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.home.viewModel.WeatherViewModel
+import com.example.skycast.utils.Constant
 import com.example.skycast.utils.NetworkConnectivityObserver
+import com.example.skycast.utils.SharedPrefrances
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -52,8 +53,8 @@ import java.time.format.DateTimeFormatter
 fun Home(
     lat: String,
     long: String,
-     viewModel: WeatherViewModel
-    ) {
+    viewModel: WeatherViewModel
+) {
     var context = LocalContext.current
     var connectivityObserver = NetworkConnectivityObserver(context)
     var isConnected = connectivityObserver.observe().collectAsState(initial = true)
@@ -90,12 +91,11 @@ fun OnHomeSuccess(
     forecasteRespond: ForecasteRespond,
     isConnected: Boolean
 ) {
-    val c = "°C"
-    val k = "°K"
-    val f = "°F"
-    var unit = c
+
+
     val currentTime = remember { mutableStateOf(getCurrentTime().toString()) }
     val context = LocalContext.current
+    var unit = SharedPrefrances.getInstance(context).getTemperature()
 
     LazyColumn(
         modifier = Modifier
@@ -176,7 +176,7 @@ fun OnHomeSuccess(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = currenntWeather.main.temp.toInt().toString(),
+                            text = getTempreture(currenntWeather.main),
                             fontSize = 64.sp,
                             color = Color.White
                         )
@@ -263,6 +263,7 @@ fun OnHomeSuccess(
                 items(24) { index ->
                     val item = todayHourlyForecast[index]
                     HourlyForecastItem(item, getTime(item.dt).toInt() + index)
+                    println(item.dt)
                 }
             }
         }
@@ -290,7 +291,7 @@ fun OnHomeSuccess(
                         horizontalArrangement = Arrangement.Center
                     ) {
 
-                        WeatherSubCard("🌬️ Wind", "${currenntWeather.wind.speed} m/s")
+                        WeatherSubCard("🌬️ Wind", getWIndSpeed(currenntWeather))
                         WeatherSubCard("🌤️ Pressure", "${currenntWeather.main.pressure} hPa")
                         WeatherSubCard("🌇️ Sun Set", getTimeWithM(currenntWeather.sys.sunset))
                     }
@@ -333,6 +334,38 @@ fun OnError(e: Throwable) {
     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
 }
 
+@Composable
+fun getWIndSpeed(currenntWeather: CurrentWeatherRespond): String {
+    val context = LocalContext.current
+    if (SharedPrefrances.getInstance(context)
+            .getWindSpeed() != Constant.Companion.sharedPrefrances.METER_Sec
+    ) {
+        return "${"%.2f".format(currenntWeather.wind.speed * 2.23694)} mph"
+    } else {
+        return "${currenntWeather.wind.speed} m/s"
+    }
+
+}
+
+@Composable
+fun getTempreture(currentMain: Main): String {
+    val context = LocalContext.current
+
+    if (SharedPrefrances.getInstance(context)
+            .getTemperature() == Constant.Companion.sharedPrefrances.FAHRENHEIT
+    ) {
+        return "${((currentMain.temp * 1.8)+ 32).toInt()}"
+    } else if (SharedPrefrances.getInstance(context)
+            .getTemperature() == Constant.Companion.sharedPrefrances.KELVIN
+    ){
+        return "${(currentMain.temp+273.15).toInt()}"
+    }
+    else{
+        return currentMain.temp.toInt().toString()
+    }
+
+
+}
 
 
 

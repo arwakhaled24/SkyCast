@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +27,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -55,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -66,30 +71,27 @@ import androidx.work.workDataOf
 import com.example.skycast.R
 import com.example.skycast.alarm.AlarmViewModel
 import com.example.skycast.alarm.workManager.MyWorker
-import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.data.dataClasses.NotificationDataClass
-import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.ui.theme.PrimaryContainer
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-
+import android.Manifest
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Alert(alrmViewModel: AlarmViewModel,currentLocation: Location) {
-    AlertScreen(alrmViewModel,currentLocation)
+fun Alert(alrmViewModel: AlarmViewModel, currentLocation: Location) {
+    AlertScreen(alrmViewModel, currentLocation)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
+fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -106,6 +108,7 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                 }.timeInMillis
                 return utcTimeMillis >= todayMillis
             }
+
             override fun isSelectableYear(year: Int): Boolean {
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 return year >= currentYear
@@ -128,7 +131,7 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
     val notificationList = alrmViewModel.notificationLis.collectAsState().value
     val showSnackbar = remember { mutableStateOf(false) }
     val deletedItem = remember { mutableStateOf<NotificationDataClass?>(null) }
-    Scaffold (modifier = Modifier
+    Scaffold(modifier = Modifier
         .fillMaxSize()
         .background(Color(0xFFA5BFCC)),
         snackbarHost = {
@@ -155,7 +158,7 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                     Text("Alarm Canceled")
                 }
             }
-        }){
+        }) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -181,16 +184,17 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
             } else {
                 val context = LocalContext.current
                 LazyColumn {
-                    items(notificationList.size){
-                            index ->  NotificationRow(
-                        notificationList[index],
-                        onDeleteClick=  {
-                            deletedItem.value = notificationList[index]
-                            showSnackbar.value = true
-                            alrmViewModel.deleteNotification(notificationList[index].id)
-                            WorkManager.getInstance(context).cancelWorkById(notificationList[index].id)
-                        }
-                    )
+                    items(notificationList.size) { index ->
+                        NotificationRow(
+                            notificationList[index],
+                            onDeleteClick = {
+                                deletedItem.value = notificationList[index]
+                                showSnackbar.value = true
+                                alrmViewModel.deleteNotification(notificationList[index].id)
+                                WorkManager.getInstance(context)
+                                    .cancelWorkById(notificationList[index].id)
+                            }
+                        )
                     }
                 }
             }
@@ -221,6 +225,7 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
+
                     showBottomSheet = false
                 },
                 sheetState = sheetState
@@ -267,7 +272,6 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                                         state = datePickerState,
                                         showModeToggle = false,
                                     )
-
                                     Row(
                                         modifier = Modifier,
                                         horizontalArrangement = Arrangement.Absolute.Right
@@ -275,19 +279,18 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                                         TextButton(onClick = {
                                             showDatePicker = false
                                             showBottomSheet = false
-                                        }) {
+                                        })
+                                        {
                                             Text(
                                                 text = "cancel",
                                                 color = Color.Red.copy(alpha = 0.5f)
                                             )
                                         }
-
                                         TextButton(onClick = {
                                             showDatePicker = false
                                         }) {
                                             Text(text = "okay")
                                         }
-
                                         Spacer(modifier = Modifier.fillMaxWidth(0.1F))
                                     }
                                 }
@@ -320,7 +323,8 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                         TextButton(onClick = {
                             val currentTimeMillis = System.currentTimeMillis()
                             val selectedCalendar = Calendar.getInstance().apply {
-                                timeInMillis = datePickerState.selectedDateMillis ?: currentTimeMillis
+                                timeInMillis =
+                                    datePickerState.selectedDateMillis ?: currentTimeMillis
                                 set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                                 set(Calendar.MINUTE, timePickerState.minute)
                                 set(Calendar.SECOND, 0)
@@ -336,25 +340,30 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
                             } else {
                                 showBottomSheet = false
                                 var request = OneTimeWorkRequestBuilder<MyWorker>()
-                                    .setInitialDelay((selectedTimeMillis-currentTimeMillis), TimeUnit.MILLISECONDS)
+                                    .setInitialDelay(
+                                        (selectedTimeMillis - currentTimeMillis),
+                                        TimeUnit.MILLISECONDS
+                                    )
                                     .setInputData(
                                         workDataOf(
-                                        "latitude" to currenTocation.latitude,
-                                        "longitude" to currenTocation.longitude),
+                                            "latitude" to currenTocation.latitude,
+                                            "longitude" to currenTocation.longitude
+                                        ),
                                     ).build()
                                 WorkManager.getInstance(context).enqueue(request)
-                                alrmViewModel.addNotidication(NotificationDataClass(
-                                    request.id,
-                                    time = selectedDate,
-                                    date = "${timePickerState.hour} : ${timePickerState.minute}"
-                                ))
+                                alrmViewModel.addNotidication(
+                                    NotificationDataClass(
+                                        request.id,
+                                        time = selectedDate,
+                                        date = "${timePickerState.hour} : ${timePickerState.minute}"
+                                    )
+                                )
                             }
                         }) {
                             Text("add Notification")
                         }
                         Spacer(Modifier.fillMaxWidth(.1f))
                     }
-
                     Spacer(Modifier.fillMaxHeight(.1f))
 
                 }
@@ -367,8 +376,72 @@ fun AlertScreen(alrmViewModel:AlarmViewModel,currenTocation: Location) {
 }
 
 
-
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
+}
+
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
+}
+
+@Composable
+fun RequestPermissionScreen() {
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permission Denied!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Button(onClick = {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }) {
+        Text("Request Notification Permission")
+    }
 }

@@ -29,36 +29,38 @@ class SharedPrefrances private constructor(context: Context){
     }
 
      fun setTemperature(temperature: String) {
-        editor!!.putString(Constant.Companion.Parameters.TEMPERATURE, temperature)
+        editor!!.putString(Constant.Companion.sharedPrefrances.TEMPERATURE_UNIT, temperature)
         editor!!.commit()
     }
-     fun getTemperature() = sharedPreferences!!.getString(Constant.Companion.Parameters.TEMPERATURE, "metric")!!
+     fun getTemperature() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.TEMPERATURE_UNIT, "°C")!!
 
 
 
 
      fun setWindSpeed(windSpeed: String){
-        editor!!.putString(Constant.Companion.Parameters.windSpeed, windSpeed)
+        editor!!.putString(Constant.Companion.sharedPrefrances.WIND_SPEED, windSpeed)
         editor!!.commit()
     }
-     fun getWindSpeed() = sharedPreferences!!.getString(Constant.Companion.Parameters.windSpeed, "metric")!!
+     fun getWindSpeed() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.WIND_SPEED,
+         Constant.Companion.sharedPrefrances.METER_Sec)!!
 
 
 
     
      fun setLanguage(language: String){
-        editor!!.putString(Constant.Companion.Parameters.LANGUAGE, language)
+        editor!!.putString(Constant.Companion.sharedPrefrances.LANGUAGE, language)
         editor!!.commit()
     }
-     fun getLanguage() = sharedPreferences!!.getString(Constant.Companion.Parameters.LANGUAGE, "en")!!
+     fun getLanguage() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.LANGUAGE, "English")!!
 
 
 
-     fun setUnit(unit:String){
-        editor!!.putString(Constant.Companion.Parameters.UNITS, unit)
+
+    fun setLocationSource(language: String){
+        editor!!.putString(Constant.Companion.sharedPrefrances.LOCATION_SOURCE, language)
         editor!!.commit()
     }
-     fun getUnit() = sharedPreferences?.getString(Constant.Companion.Parameters.UNITS,"metric").toString()
+    fun getLocationSource() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.LOCATION_SOURCE, "GPS")!!
 
 
 

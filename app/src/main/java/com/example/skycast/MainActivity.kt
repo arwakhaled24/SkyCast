@@ -1,4 +1,4 @@
-package com.example.skycast.view
+package com.example.skycast
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -10,20 +10,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Down
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Left
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Right
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
@@ -33,7 +29,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -51,8 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.Favourits.viewModel.MyFavFactory
@@ -62,7 +55,6 @@ import com.example.skycast.alarm.view.Alert
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
 import com.example.skycast.data.dataClasses.NavItem
-import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
 import com.example.skycast.data.repository.WeatherRepository
@@ -71,7 +63,7 @@ import com.example.skycast.home.viewModel.MyFactory
 import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.utils.getMetaDataValue
-import com.example.skycast.view.screens.Setting
+import com.example.skycast.settings.Setting
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest

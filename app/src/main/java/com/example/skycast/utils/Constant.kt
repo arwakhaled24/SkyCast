@@ -12,13 +12,11 @@ class Constant {
 
         object Parameters {
             const val UNITS = "units"
-            const val LANGUAGE = "lang"
             const val LONGTUDE = "lon"
             const val LATITUDE = "lat"
+            const val LANGUAGE = "lang"
             const val APP_ID = "appid"
-            var TEMPERATURE = "temperature"
-            const val MeasurementUnit = "MeasurementUnit"
-            val windSpeed="windSpeed"
+
             const val TIMESTAMPS_NUM =
                 "cnt" //	A number of timestamps, which will be returned in the API response. Learn more
         }
@@ -32,6 +30,22 @@ class Constant {
         object Language {
             const val ARABIC = "ar"
             const val ENGLISH = "en"
+        }
+
+        object sharedPrefrances{
+            var TEMPERATURE_UNIT = "TEMPERATURE_UNIT"
+            val WIND_SPEED="WIND_SPEED"
+            val LANGUAGE = "Language"
+            val LOCATION_SOURCE="LOCATION_SOURCE"
+
+            val METER_Sec="meter/sec"
+
+
+            val CELSIUS  ="°C"
+            val KELVIN  ="°K"
+            val FAHRENHEIT  ="°F"
+
+
         }
     }
 }

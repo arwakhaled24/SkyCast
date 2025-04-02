@@ -4,9 +4,9 @@
     <string name="arabic">Arabic</string>
     <string name="language">Language</string>
     <string name="temperture_unit">Temperature Unit</string>
-    <string name="celsius_c">Celsius °C</string>
-    <string name="kelvin_k">Kelvin K</string>
-    <string name="fahrenheit_f">Fahrenheit °F</string>
+    <string name="celsius_c">°C</string>
+    <string name="kelvin_k">°K</string>
+    <string name="fahrenheit_f">°F</string>
     <string name="edit_location">Edit Location</string>
     <string name="gps">GPS</string>
     <string name="map">Map</string>
