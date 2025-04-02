@@ -127,6 +127,9 @@ dependencies {
     val work_version = "2.10.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
+    //splash Screen
+    implementation("androidx.core:core-splashscreen:1.0.0")
+
 
 
 

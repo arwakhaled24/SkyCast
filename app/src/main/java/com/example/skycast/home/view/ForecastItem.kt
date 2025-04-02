@@ -34,7 +34,6 @@ fun ForecastItem(weatherItem: WeatherItem) {
     var unit = SharedPrefrances.getInstance(context).getTemperature()
     val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val date = LocalDate.parse(weatherItem.dtTxt, firstApiFormat)
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
@@ -86,7 +87,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        installSplashScreen()
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         var myFactory = MyFactory(
             WeatherRepository.getInstance(
