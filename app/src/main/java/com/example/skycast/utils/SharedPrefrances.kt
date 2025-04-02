@@ -2,11 +2,13 @@ package com.example.skycast.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.example.skycast.R
 
-class SharedPrefrances private constructor(context: Context){
+class SharedPrefrances private constructor( val context: Context){
 
     private var sharedPreferences: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
+    private var sharedPreferencesConstants = Constant.Companion.sharedPrefrances(context)
 
     init {
         sharedPreferences = context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
@@ -29,45 +31,39 @@ class SharedPrefrances private constructor(context: Context){
     }
 
      fun setTemperature(temperature: String) {
-        editor!!.putString(Constant.Companion.sharedPrefrances.TEMPERATURE_UNIT, temperature)
+        editor!!.putString(sharedPreferencesConstants.TEMPERATURE_UNIT, temperature)
         editor!!.commit()
     }
-     fun getTemperature() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.TEMPERATURE_UNIT, "°C")!!
+     fun getTemperature() = sharedPreferences!!.getString(sharedPreferencesConstants.TEMPERATURE_UNIT
+         ,sharedPreferencesConstants.CELSIUS)!!
 
 
 
 
      fun setWindSpeed(windSpeed: String){
-        editor!!.putString(Constant.Companion.sharedPrefrances.WIND_SPEED, windSpeed)
+        editor!!.putString(sharedPreferencesConstants.WIND_SPEED, windSpeed)
         editor!!.commit()
     }
-     fun getWindSpeed() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.WIND_SPEED,
-         Constant.Companion.sharedPrefrances.METER_Sec)!!
+     fun getWindSpeed() = sharedPreferences!!.getString(sharedPreferencesConstants.WIND_SPEED,
+         sharedPreferencesConstants.METER_Sec)!!
 
 
 
     
      fun setLanguage(language: String){
-        editor!!.putString(Constant.Companion.sharedPrefrances.LANGUAGE, language)
+        editor!!.putString(sharedPreferencesConstants.LANGUAGE, language)
         editor!!.commit()
     }
-     fun getLanguage() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.LANGUAGE, "English")!!
+     fun getLanguage() = sharedPreferences!!.getString(sharedPreferencesConstants.LANGUAGE, sharedPreferencesConstants.ENGLISH)!!
 
 
 
 
     fun setLocationSource(language: String){
-        editor!!.putString(Constant.Companion.sharedPrefrances.LOCATION_SOURCE, language)
+        editor!!.putString(sharedPreferencesConstants.LOCATION_SOURCE, language)
         editor!!.commit()
     }
-    fun getLocationSource() = sharedPreferences!!.getString(Constant.Companion.sharedPrefrances.LOCATION_SOURCE, "GPS")!!
-
-
-
-
-
-
-
-
+    fun getLocationSource() = sharedPreferences!!.getString(sharedPreferencesConstants.LOCATION_SOURCE,
+        sharedPreferencesConstants.GPS)!!
 
 }

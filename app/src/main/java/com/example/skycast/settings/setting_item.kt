@@ -13,6 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,21 +40,27 @@ fun CardView(title: Int, options: List<String>, icon: Int,onOptionSelected:(Stri
             Text(text = stringResource(title), fontSize = 22.sp)
         }
         Row {
-            RadioButtonSingleSelection(options,onOptionSelected,selectedOption)
+            RadioButtonGroup(options,onOptionSelected,selectedOption)
         }
     }
 }
 
 
 @Composable
-fun RadioButtonSingleSelection(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String=listOptions[0]) {
+fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String/*=listOptions[0]*/) {
+/*
+    var (selectedOption,optionClicked) = remember { mutableStateOf(defauilSelectedOption) }
+*/
     val radioOptions = listOptions
-//val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
     Row(
+
         modifier = Modifier
             .selectableGroup()
             .fillMaxWidth()
     ) {
+/*
+        selectedOption=defauilSelectedOption
+*/
         radioOptions.forEach { text ->
             Row(
                 Modifier

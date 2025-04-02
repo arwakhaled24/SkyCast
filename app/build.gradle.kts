@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,7 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.1.10"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id ("kotlin-parcelize")
+    id("kotlin-parcelize")
 
 }
 android {
@@ -45,7 +43,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    androidResources {
+        generateLocaleConfig = true
+    }
 }
+
+
 
 dependencies {
 
@@ -68,24 +72,20 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
     //room&retrofit
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.google.code.gson:gson:2.12.1")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.room:room-runtime:2.6.1")
-    ksp ("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
     //navigation
     implementation("androidx.navigation:navigation-compose:2.8.9")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
-
-    //splashScreen
-    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     //location
-    implementation ("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
 
     // hamcrest
@@ -103,7 +103,7 @@ dependencies {
     // JUnit (for running tests)
     testImplementation("junit:junit:4.13.2")
 
-   //maps
+    //maps
     val mapsComposeVersion = "4.4.1"
     implementation("com.google.maps.android:maps-compose:$mapsComposeVersion")
     implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
@@ -112,6 +112,7 @@ dependencies {
     //viewmodel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7")
 
+    //google play services
     implementation(libs.places)
     implementation(libs.play.services.maps)
 
@@ -119,9 +120,8 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.0")
 
 
-
     //testing view model
-    testImplementation ("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 
 /// work manager
     val work_version = "2.10.0"
@@ -130,7 +130,8 @@ dependencies {
     //splash Screen
     implementation("androidx.core:core-splashscreen:1.0.0")
 
-
+    // //localization
+      implementation ("androidx.appcompat:appcompat:1.6.1")
 
 
 }

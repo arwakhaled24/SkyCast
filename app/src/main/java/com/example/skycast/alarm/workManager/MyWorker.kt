@@ -3,6 +3,7 @@ package com.example.skycast.alarm.workManager
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -27,7 +28,7 @@ class MyWorker(val context: Context, val workerParameters: WorkerParameters) :
         )
     }
     private val _currentWeather = MutableStateFlow<CurrentWeatherRespond?>(null)
-    override suspend  fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val latitude = inputData.getDouble("latitude", 0.0)
         val longitude = inputData.getDouble("longitude", 0.0)
 
@@ -36,12 +37,20 @@ class MyWorker(val context: Context, val workerParameters: WorkerParameters) :
                 lat = latitude.toString(),
                 lon = longitude.toString(),
             )
-            showNotification("The Current weather is ${_currentWeather.value?.weather?.get(0)?.description} ")
+            if (_currentWeather?.value?.weather?.get(0)?.description.isNullOrBlank()) {
+                showNotification("check the Weather Now")
+            }
+            else{
+                showNotification("The Current weather is ${_currentWeather.value?.weather?.get(0)?.description} ")
+            }
 
-           repository.deleteNotification(workerParameters.id)
+
+
 
         } catch (e: Exception) {
             showNotification("check the Weather Now")
+        } finally {
+            repository.deleteNotification(workerParameters.id)
         }
         return Result.success()
     }

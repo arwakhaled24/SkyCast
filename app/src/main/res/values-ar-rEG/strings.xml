@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyCast</string>
+    <string name="english" >الانجليزية</string>
+    <string name="arabic">العربية</string>
+    <string name="language">اللغة</string>
+    <string name="temperature_unit">وحدة درجة الحرارة</string>
+    <string name="celsius_c" >°م</string>
+    <string name="kelvin_k">°ك</string>
+    <string name="fahrenheit_f">°ف</string>
+    <string name="edit_location">مصدرالموقع</string>
+    <string name="map">الخريطة</string>
+    <string name="wind_speed_unit">وحدة سرعة الرياح</string>
+    <string name="m_sec">متر/ثانيه</string>
+    <string name="mile_hour">ميل/ساعه</string>
+    <string name="no_favourite_location_yet">لا يوجد مواقع مفضله بعد</string>
+    <string name="gps">النظام العالمي </string>
+</resources>

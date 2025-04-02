@@ -34,7 +34,6 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
         language: String = "en",
         unit: String = "metric"
     ) {
-        Log.i("TAG", "getCurrentWeather: ooh")
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getCurrentWeather(lat, lon, language, unit)
             result.catch {
@@ -42,7 +41,6 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
             }.collect {it
                 if (it!= null){
                     _currentWeather.value = RespondStatus.Success<CurrentWeatherRespond>(it)
-                    Log.i("TAG", "getCurrentWeather: ooh2")
                 }
             }
         }
@@ -54,7 +52,6 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
         language: String = "en",
         unit: String = "metric"
     ) {
-        Log.i("TAG", "getCurrentWeather: ooh3")
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getForecastgetCurrentWeather(lat, lon, language, unit)
             result.catch {
@@ -62,7 +59,6 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
             }.collect{
                 if (it != null){
                     _forecast.value= RespondStatus.Success<ForecasteRespond>(it)
-                    Log.i("TAG", "getCurrentWeather: ooh4")
                 }
             }
         }

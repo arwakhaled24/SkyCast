@@ -92,11 +92,10 @@ fun OnHomeSuccess(
     isConnected: Boolean
 ) {
 
-
     val currentTime = remember { mutableStateOf(getCurrentTime().toString()) }
     val context = LocalContext.current
     var unit = SharedPrefrances.getInstance(context).getTemperature()
-
+    println( getTime(1743573600))
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -262,8 +261,8 @@ fun OnHomeSuccess(
                 val todayHourlyForecast = interpolateHourlyForecast(todayForecast)
                 items(24) { index ->
                     val item = todayHourlyForecast[index]
-                    HourlyForecastItem(item, getTime(item.dt).toInt() + index)
-                    println(item.dt)
+                    val time = getTime(item.dt).toInt() + index
+                    HourlyForecastItem(item, time )
                 }
             }
         }
@@ -309,6 +308,7 @@ fun OnHomeSuccess(
             val listIndex = (index * 8)
             ForecastItem(forecasteRespond.list[index])
         }
+        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
     LaunchedEffect(Unit) {
         while (true) {
@@ -338,7 +338,7 @@ fun OnError(e: Throwable) {
 fun getWIndSpeed(currenntWeather: CurrentWeatherRespond): String {
     val context = LocalContext.current
     if (SharedPrefrances.getInstance(context)
-            .getWindSpeed() != Constant.Companion.sharedPrefrances.METER_Sec
+            .getWindSpeed() != Constant.Companion.sharedPrefrances(context).METER_Sec
     ) {
         return "${"%.2f".format(currenntWeather.wind.speed * 2.23694)} mph"
     } else {
@@ -352,11 +352,11 @@ fun getTempreture(temp: Double): String {
     val context = LocalContext.current
 
     if (SharedPrefrances.getInstance(context)
-            .getTemperature() == Constant.Companion.sharedPrefrances.FAHRENHEIT
+            .getTemperature() == Constant.Companion.sharedPrefrances(context).FAHRENHEIT
     ) {
         return "${((temp * 1.8)+ 32).toInt()}"
     } else if (SharedPrefrances.getInstance(context)
-            .getTemperature() == Constant.Companion.sharedPrefrances.KELVIN
+            .getTemperature() == Constant.Companion.sharedPrefrances(context).KELVIN
     ){
         return "${(temp+273.15).toInt()}"
     }

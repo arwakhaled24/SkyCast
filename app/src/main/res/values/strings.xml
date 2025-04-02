@@ -1,17 +1,17 @@
 <resources>
     <string name="app_name">SkyCast</string>
-    <string name="english">English</string>
+    <string name="english" >English</string>
     <string name="arabic">Arabic</string>
     <string name="language">Language</string>
-    <string name="temperture_unit">Temperature Unit</string>
-    <string name="celsius_c">°C</string>
+    <string name="temperature_unit">Temperature Unit</string>
+    <string name="celsius_c" >°C</string>
     <string name="kelvin_k">°K</string>
     <string name="fahrenheit_f">°F</string>
     <string name="edit_location">Edit Location</string>
-    <string name="gps">GPS</string>
     <string name="map">Map</string>
-    <string name="wind_spean_unit">Wind Spean Unit</string>
+    <string name="wind_speed_unit">Wind Speed Unit</string>
     <string name="m_sec">meter/sec</string>
-    <string name="mile_houre">mile/houre</string>
+    <string name="mile_hour">mile/hour</string>
     <string name="no_favourite_location_yet">No Favourite Location Yet</string>
+    <string name="gps">GPS</string>
 </resources>

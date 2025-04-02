@@ -1,5 +1,9 @@
 package com.example.skycast.utils
 
+import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.skycast.R
 import kotlinx.serialization.Serializable
 @Serializable
 class Constant {
@@ -32,19 +36,22 @@ class Constant {
             const val ENGLISH = "en"
         }
 
-        object sharedPrefrances{
-            var TEMPERATURE_UNIT = "TEMPERATURE_UNIT"
-            val WIND_SPEED="WIND_SPEED"
-            val LANGUAGE = "Language"
-            val LOCATION_SOURCE="LOCATION_SOURCE"
-
-            val METER_Sec="meter/sec"
 
 
-            val CELSIUS  ="°C"
-            val KELVIN  ="°K"
-            val FAHRENHEIT  ="°F"
 
+        class sharedPrefrances(context: Context){
+            var TEMPERATURE_UNIT =context.getString(R.string.temperature_unit)
+            val WIND_SPEED= context.getString(R.string.wind_speed_unit)
+            val LANGUAGE = context.getString(R.string.language)
+            val LOCATION_SOURCE= context.getString(R.string.edit_location)
+            val METER_Sec=context.getString(R.string.m_sec)
+            val CELSIUS  = context.getString(R.string.celsius_c)
+            val KELVIN  =context.getString(R.string.kelvin_k)
+            val FAHRENHEIT  =context.getString(R.string.fahrenheit_f)
+            val ARABIC= context.getString(R.string.arabic)
+            val ENGLISH= context.getString(R.string.english)
+            val GPS= context.getString(R.string.gps)
+            val MAP= context.getString(R.string.map)
 
         }
     }

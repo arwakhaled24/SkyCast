@@ -12,7 +12,8 @@ fun getCurrentTime(): String {
 
 fun getTime(time: Long): String {
     val sdf = SimpleDateFormat("h", Locale.getDefault())
-    return sdf.format(Date(time))
+    val time = sdf.format(Date(time))
+    return time
 }
 
 fun getTimeWithM(time: Long): String {
