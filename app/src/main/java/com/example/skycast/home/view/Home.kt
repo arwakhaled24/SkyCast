@@ -176,7 +176,7 @@ fun OnHomeSuccess(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = getTempreture(currenntWeather.main),
+                            text = getTempreture(currenntWeather.main.temp),
                             fontSize = 64.sp,
                             color = Color.White
                         )
@@ -348,20 +348,20 @@ fun getWIndSpeed(currenntWeather: CurrentWeatherRespond): String {
 }
 
 @Composable
-fun getTempreture(currentMain: Main): String {
+fun getTempreture(temp: Double): String {
     val context = LocalContext.current
 
     if (SharedPrefrances.getInstance(context)
             .getTemperature() == Constant.Companion.sharedPrefrances.FAHRENHEIT
     ) {
-        return "${((currentMain.temp * 1.8)+ 32).toInt()}"
+        return "${((temp * 1.8)+ 32).toInt()}"
     } else if (SharedPrefrances.getInstance(context)
             .getTemperature() == Constant.Companion.sharedPrefrances.KELVIN
     ){
-        return "${(currentMain.temp+273.15).toInt()}"
+        return "${(temp+273.15).toInt()}"
     }
     else{
-        return currentMain.temp.toInt().toString()
+        return temp.toInt().toString()
     }
 
 

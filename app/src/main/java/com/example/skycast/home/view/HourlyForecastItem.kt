@@ -18,19 +18,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
+import com.example.skycast.utils.SharedPrefrances
 import kotlin.math.absoluteValue
 
 @Composable
 fun HourlyForecastItem(wearherItem: WeatherItem, time: Int ) {
-    val c = "°C"
-    val k = "°K"
-    val f = "°F"
-    var unit = c
+  val context= LocalContext.current
+    var unit = SharedPrefrances.getInstance(context).getTemperature()
     OutlinedCard (
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -39,7 +39,6 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int ) {
         colors = CardDefaults.cardColors(
             containerColor = Color.Gray.copy(alpha = 0.6f)
         )
-
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -52,7 +51,7 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int ) {
                 text = if (time <= 12) "$time AM " else if (time <= 24) "$pm PM" else "$am AM",
                 color = Color.White
             )
-            Text(text = " ${wearherItem.main.temp.toInt().toString()} $unit", color = Color.White)
+            Text(text = " ${getTempreture(wearherItem.main.temp)} $unit", color = Color.White)
 
             Text(text = getIcon(wearherItem.weather[0].icon), fontSize = 24.sp)
         }

@@ -1,5 +1,6 @@
 package com.example.skycast.home.view
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -16,16 +17,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
+import com.example.skycast.utils.SharedPrefrances
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ForecastItem(weatherItem: WeatherItem) {
+    val context= LocalContext.current
+    var unit = SharedPrefrances.getInstance(context).getTemperature()
     val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val date = LocalDate.parse(weatherItem.dtTxt, firstApiFormat)
 
@@ -48,13 +54,13 @@ fun ForecastItem(weatherItem: WeatherItem) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "${weatherItem.main.temp.toInt()}°",
+                    text = "${getTempreture(weatherItem.main.temp)} $unit",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "H: ${weatherItem.main.tempMax.toInt()}°  L: ${weatherItem.main.tempMin.toInt()}°",
+                    text = "H: ${getTempreture(weatherItem.main.tempMax)}°  L: ${getTempreture(weatherItem.main.tempMin)}° ",
                     color = Color.White,
                     fontSize = 14.sp
                 )
