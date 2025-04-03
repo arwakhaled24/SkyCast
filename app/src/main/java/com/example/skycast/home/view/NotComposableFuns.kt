@@ -1,19 +1,19 @@
 package com.example.skycast.home.view
 
+import android.content.Context
 import android.icu.text.SimpleDateFormat
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-fun getCurrentTime(): String {
-    val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
-    return sdf.format(Date(System.currentTimeMillis()))
-}
-
 fun getTime(time: Long): String {
     val sdf = SimpleDateFormat("h", Locale.getDefault())
-    val time = sdf.format(Date(time * 1000))
-    return time
+   return sdf.format(Date(time * 1000))
+
 }
 
 fun getTimeWithM(time: Long): String {
@@ -57,4 +57,11 @@ fun interpolateHourlyForecast(weatherItems: List<WeatherItem>): List<WeatherItem
     interpolatedForecast.add(weatherItems.last())
 
     return interpolatedForecast
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getDate(date:String, context:Context){
+    val locale = context.resources.configuration.locales[0]
+    val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss",Locale.getDefault())
+    val date = LocalDate.parse(date, firstApiFormat)
 }

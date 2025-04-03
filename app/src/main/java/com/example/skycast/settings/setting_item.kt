@@ -47,10 +47,10 @@ fun CardView(title: Int, options: List<String>, icon: Int,onOptionSelected:(Stri
 
 
 @Composable
-fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String/*=listOptions[0]*/) {
-/*
-    var (selectedOption,optionClicked) = remember { mutableStateOf(defauilSelectedOption) }
-*/
+fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String=listOptions[0]) {
+//    var (selectedOption,optionClicked) = remember { mutableStateOf(defauilSelectedOption) }
+
+
     val radioOptions = listOptions
     Row(
 
@@ -58,9 +58,9 @@ fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit
             .selectableGroup()
             .fillMaxWidth()
     ) {
-/*
-        selectedOption=defauilSelectedOption
-*/
+       // selectedOption=defauilSelectedOption
+
+
         radioOptions.forEach { text ->
             Row(
                 Modifier

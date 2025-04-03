@@ -3,7 +3,6 @@ package com.example.skycast.home.view
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,9 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,11 +35,10 @@ import com.example.skycast.R
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.utils.SharedPrefrances
-import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-@OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnHomeSuccess(
@@ -52,7 +47,7 @@ fun OnHomeSuccess(
     isConnected: Boolean
 ) {
     val context = LocalContext.current
-    var unit = SharedPrefrances.getInstance(context).getTemperature()
+    val unit = SharedPrefrances.getInstance(context).getTemperature()
     println( getTime(1743573600))
     LazyColumn(
         modifier = Modifier
@@ -137,12 +132,15 @@ fun OnHomeSuccess(
                             fontSize = 64.sp,
                             color = Color.White
                         )
-                        Text(
-                            text = unit,
-                            fontSize = 16.sp,
-                            color = Color.White,
-                            modifier = Modifier.align(Alignment.Bottom)
-                        )
+
+                        if (unit != null) {
+                            Text(
+                                text = unit,
+                                fontSize = 16.sp,
+                                color = Color.White,
+                                modifier = Modifier.align(Alignment.Bottom)
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(10.dp))
@@ -156,10 +154,9 @@ fun OnHomeSuccess(
                     )
 
                     Spacer(Modifier.height(10.dp))
-
-                    val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    
+                    val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
-
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -187,13 +184,13 @@ fun OnHomeSuccess(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "H:${currenntWeather.main.tempMax.toInt()}°",
+                            text = stringResource(R.string.h, currenntWeather.main.tempMax.toInt()),
                             fontSize = 16.sp,
                             color = Color.White
                         )
                         Spacer(Modifier.width(5.dp))
                         Text(
-                            text = "L:${currenntWeather.main.tempMin.toInt()}°",
+                            text = stringResource(R.string.l, currenntWeather.main.tempMin.toInt()),
                             fontSize = 16.sp,
                             color = Color.White
                         )
@@ -261,7 +258,6 @@ fun OnHomeSuccess(
         item { Spacer(modifier = Modifier.height(8.dp)) }
 
         items(forecasteRespond.list.size) { index ->
-            val listIndex = (index * 8)
             ForecastItem(forecasteRespond.list[index])
         }
         item { Spacer(modifier = Modifier.height(80.dp)) }

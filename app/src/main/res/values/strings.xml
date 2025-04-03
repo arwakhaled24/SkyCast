@@ -41,4 +41,7 @@
     <string name="add_to_favorites">ADD TO FAVORITES</string>
     <string name="search_for_a_place">Search for a place</string>
     <string name="_5_day_forecast">5-DAY FORECAST</string>
+    <string name="l">L:%1$s°</string>
+    <string name="h">H:%1$s°</string>
+    <string name="set_this_location">set this location</string>
 </resources>

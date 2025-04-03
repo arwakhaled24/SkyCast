@@ -42,4 +42,7 @@
     <string name="add_to_favorites">اضافه الي المفضلة</string>
     <string name="search_for_a_place">ابحث عن موقع</string>
     <string name="_5_day_forecast">حاله الطقس للأيام القادمين</string>
+    <string name="l">ص:%1$s°</string>
+    <string name="h">ع:%1$s°</string>
+    <string name="set_this_location">اختيار هذا الموقع</string>
 </resources>

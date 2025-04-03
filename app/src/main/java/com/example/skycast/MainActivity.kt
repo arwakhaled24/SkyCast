@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -65,6 +67,7 @@ import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.utils.getMetaDataValue
 import com.example.skycast.settings.Setting
+import com.example.skycast.utils.SharedPrefrances
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -82,6 +85,9 @@ class MainActivity : ComponentActivity() {
     lateinit var favViewModel: FavouritsViewModel
     lateinit var alarmViewModel: AlarmViewModel
     lateinit var currentLocation: MutableState<Location>
+    lateinit var selectedLong: MutableState<Double>
+    lateinit var selectedLat: MutableState<Double>
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("CoroutineCreationDuringComposition")
@@ -95,7 +101,7 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(
                     MyDatabase.getInstance(context = this).getDao(),
                 )
-            )
+            ),this
         )
         var myFavFactory = MyFavFactory(
             WeatherRepository.getInstance(
@@ -103,7 +109,7 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
-        var MyalarmFactory= AlarmFactory(
+        var MyalarmFactory = AlarmFactory(
             WeatherRepository.getInstance(
                 WearherRemoreDataSourse(RetrofitHelper(context = this)),
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
@@ -114,13 +120,15 @@ class MainActivity : ComponentActivity() {
             Places.initialize(applicationContext, apiKey)
         }
         setContent {
+            selectedLat = remember { mutableStateOf(0.0) }
+            selectedLong = remember { mutableStateOf(0.0) }
+
             weatherViewModel = viewModel(factory = myFactory)
             favViewModel = viewModel(factory = myFavFactory)
             alarmViewModel = viewModel(factory = MyalarmFactory)
             currentLocation = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
             SkyCastTheme {
-                MainScreen(weatherViewModel, favViewModel,alarmViewModel, currentLocation.value)
-
+                MainScreen(weatherViewModel, favViewModel, alarmViewModel, currentLocation.value,selectedLong.value,selectedLat.value)
             }
 
         }
@@ -128,21 +136,29 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (checkPermissions()) {
-            if (isLocationEnabled()) {
-                getCurrentLocation()
+        if (SharedPrefrances.getInstance(this).isSelectedLocation() == false) {
+            if (checkPermissions()) {
+                if (isLocationEnabled()) {
+                    getCurrentLocation()
+                } else {
+                    enableLocationServices()
+                }
             } else {
-                enableLocationServices()
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    LOCATION_PERMISSION_CODE
+                )
+                Log.i("TAG", "onStart:fromLocation ")
             }
         } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                LOCATION_PERMISSION_CODE
-            )
+            Log.i("TAG", "onStart:from shared ")
+            Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLat()}")
+            Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLong()}")
+
         }
     }
 
@@ -179,9 +195,11 @@ class MainActivity : ComponentActivity() {
                 LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
-                    currentLocation.value =
-                        locationResult.lastLocation ?: Location(LocationManager.GPS_PROVIDER)
-
+                    selectedLat.value=
+                    locationResult.lastLocation?.latitude ?: Location(LocationManager.GPS_PROVIDER).latitude
+                    selectedLong.value=
+                        locationResult.lastLocation?.longitude ?: Location(LocationManager.GPS_PROVIDER).longitude
+                    Log.i("TAG", "Lat: ${selectedLat.value}, Long: ${selectedLong.value}")
                 }
             },
             Looper.myLooper()
@@ -228,7 +246,10 @@ fun MainScreen(
     favViewModel: FavouritsViewModel,
     alarmViewModel: AlarmViewModel,
     currentLocation: Location,
+   selectedLong:Double,
+    selectedLat:Double,
 ) {
+
     val selectedIndex = remember { mutableStateOf(0) }
     val msg = weatherViewModel.message.observeAsState()
     val scope = rememberCoroutineScope()
@@ -240,6 +261,15 @@ fun MainScreen(
         NavItem("Notification", Icons.Default.Notifications),
         NavItem("Settings", Icons.Default.List)
     )
+    var selectedLo=selectedLong
+    var selectedLa=selectedLat
+    val context= LocalContext.current
+    if (SharedPrefrances.getInstance(context).isSelectedLocation()){
+        selectedLa= SharedPrefrances.getInstance(context).getLat().toDouble()
+        selectedLo=SharedPrefrances.getInstance(context).getLong().toDouble()
+    }
+    Log.i("TAG", "MainScreen: ${selectedLa} ")
+    Log.i("TAG", "MainScreen: ${selectedLo} ")
 
     Scaffold(
         modifier = Modifier
@@ -247,7 +277,7 @@ fun MainScreen(
         containerColor = Color(0xFFA5BFCC),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            NavigationBar (modifier = Modifier.background(Color( 0xFFA5BFCC/*0xFF95a6c9*/))){
+            NavigationBar(modifier = Modifier.background(Color(0xFFA5BFCC/*0xFF95a6c9*/))) {
                 navItems.forEachIndexed({ index, screen ->
                     NavigationBarItem(
                         label = { screen.name },
@@ -264,6 +294,7 @@ fun MainScreen(
             }
         }
     ) {
+        val cotext = LocalContext.current
         AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
             slideIntoContainer(
                 animationSpec = tween(500, easing = EaseIn),
@@ -276,18 +307,19 @@ fun MainScreen(
             )
         }) { targetState ->
             when (targetState) {
-                0 -> Home(
 
-                    lat = currentLocation.latitude.toString(),
-                    long = currentLocation.longitude.toString(),
+                0 -> Home(
+                    lat = selectedLo.toString(),
+                    long = selectedLa.toString(),
                     weatherViewModel,
                 )
 
                 1 -> Favourits(
                     favViewModel,
-                    weatherViewModel,)
+                    weatherViewModel,
+                )
 
-                2 -> Alert(alarmViewModel, currentLocation )
+                2 -> Alert(alarmViewModel, currentLocation)
                 3 -> Setting()
             }
         }

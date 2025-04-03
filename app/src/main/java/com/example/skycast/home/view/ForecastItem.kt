@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,16 +24,44 @@ import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
 import com.example.skycast.utils.SharedPrefrances
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 @SuppressLint("SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ForecastItem(weatherItem: WeatherItem) {
-    val context= LocalContext.current
-    var unit = SharedPrefrances.getInstance(context).getTemperature()
+    val context = LocalContext.current
+    val dayTranslations = mapOf(
+        Locale("en") to mapOf(
+            "MONDAY" to "Monday",
+            "TUESDAY" to "Tuesday",
+            "WEDNESDAY" to "Wednesday",
+            "THURSDAY" to "Thursday",
+            "FRIDAY" to "Friday",
+            "SATURDAY" to "Saturday",
+            "SUNDAY" to "Sunday"
+        ),
+        Locale("ar") to mapOf(
+            "MONDAY" to "الاثنين",
+            "TUESDAY" to "الثلاثاء",
+            "WEDNESDAY" to "الأربعاء",
+            "THURSDAY" to "الخميس",
+            "FRIDAY" to "الجمعة",
+            "SATURDAY" to "السبت",
+            "SUNDAY" to "الأحد"
+        )
+    )
+
+    val unit = SharedPrefrances.getInstance(context).getTemperature()
     val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    val date = LocalDate.parse(weatherItem.dtTxt, firstApiFormat)
+    val date: LocalDateTime = LocalDateTime.parse(weatherItem.dtTxt, firstApiFormat)
+    val locale = context.resources.configuration.locales[0]
+    val dayNameInEnglish = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).toUpperCase(Locale.ENGLISH)
+    val translatedDayName = dayTranslations[locale]?.get(dayNameInEnglish) ?: dayNameInEnglish
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,7 +73,7 @@ fun ForecastItem(weatherItem: WeatherItem) {
 
             ) {
             Text(
-                text = date.dayOfWeek.name.take(3),
+                text =translatedDayName.take(6),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -40,7 +39,6 @@ import androidx.core.widget.addTextChangedListener
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.ui.theme.BluePeriwinkle
-import com.example.skycast.ui.theme.PrimaryContainer
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
@@ -56,24 +54,18 @@ import kotlinx.coroutines.withContext
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Map(
-    favViewModel: FavouritsViewModel,
+    onPlaceSelected:(LocationDataClass) -> Unit,
     onLocationAdded: () -> Unit,
+    buttontext:String
 ) {
     val context = LocalContext.current
-    var markerPosition = remember { mutableStateOf<LatLng?>(null) }
+    val markerPosition = remember { mutableStateOf<LatLng?>(null) }
     val geocoder = remember { Geocoder(context) }
-    val city = remember { mutableStateOf("") }
-    val country = remember { mutableStateOf("") }
     val address = remember { mutableStateOf(context.getString(com.example.skycast.R.string.no_selected_location_yet_in_map)) }
-    val quertText = remember { mutableStateOf("") }
-    val query = remember { mutableStateOf("") }
-    val activ = remember { mutableStateOf(false) }
     val searchFlow = remember { MutableSharedFlow<List<String>>(replay = 1) }
-    var searchResults = remember { mutableStateOf(emptyList<String>()) }
-    val selectedLocation = remember { mutableStateOf<LatLng?>(null) }
+    val searchResults = remember { mutableStateOf(emptyList<String>()) }
     val scope = rememberCoroutineScope()
 
     Column {
@@ -89,7 +81,7 @@ fun Map(
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
                     markerPosition.value = latLng
-                    updateLocaionAddress(latLng, geocoder, address)
+                    updateLocationAddress(latLng, geocoder, address)
                 }
             )
             {
@@ -127,13 +119,12 @@ fun Map(
                     if (address.value != "No Selected Location yet") {
                         Button(
                             onClick = {
-                                favViewModel.addFavLocation(
-                                    LocationDataClass(
-                                        longitude = markerPosition.value!!.longitude.toString(),
-                                        latitude = markerPosition.value!!.latitude.toString(),
-                                        CityName = address.value
-                                    )
+                                val locationData = LocationDataClass(
+                                    longitude = markerPosition.value!!.longitude.toString(),
+                                    latitude = markerPosition.value!!.latitude.toString(),
+                                    CityName = address.value
                                 )
+                                onPlaceSelected(locationData)
                                 onLocationAdded()
                             },
                             modifier = Modifier
@@ -147,7 +138,7 @@ fun Map(
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(stringResource(com.example.skycast.R.string.add_to_favorites), color = Color.White)
+                            Text(buttontext, color = Color.White)
                         }
                     }
                 }
@@ -173,14 +164,11 @@ fun selectLocation(
                 val addressVar = addresses[0]
                 val latLng = LatLng(addressVar.latitude, addressVar.longitude)
                 markerPosition.value = latLng
-                updateLocaionAddress(
+                updateLocationAddress(
                     latLng,
                     geocoder,
                     address
                 )
-
-            } else {
-
 
             }
         }
@@ -218,7 +206,6 @@ fun SearchBar(
                 addTextChangedListener { editable ->
                     val query = editable?.toString() ?: ""
                     if (query.isNotEmpty()) {
-
                         val request = FindAutocompletePredictionsRequest.builder()
                             .setSessionToken(autocompleteSessionToken)
                             .setQuery(query)
@@ -228,17 +215,13 @@ fun SearchBar(
                             .addOnSuccessListener { response ->
                                 autocompleteAdapter.clear()
                                 response.autocompletePredictions.forEach { prediction ->
-
                                     autocompleteAdapter.add(prediction.getFullText(null).toString())
                                 }
                                 autocompleteAdapter.notifyDataSetChanged()
                             }
                     }
                 }
-
-
                 setAdapter(autocompleteAdapter)
-
 
                 setOnItemClickListener { _, _, position, _ ->
                     val selectedPlace =
@@ -253,8 +236,8 @@ fun SearchBar(
     )
 }
 
-fun updateLocaionAddress(latLng: LatLng, geocoder: Geocoder, address: MutableState<String>) {
 
+fun updateLocationAddress(latLng: LatLng, geocoder: Geocoder, address: MutableState<String>) {
     runBlocking {
         launch {
             val addresses = geocoder.getFromLocation(
@@ -265,7 +248,7 @@ fun updateLocaionAddress(latLng: LatLng, geocoder: Geocoder, address: MutableSta
             addresses?.firstOrNull()?.let {
                 val city = it.locality ?: ""
                 val country = it.countryName ?: ""
-                address.value = "${city}, ${country}"
+                address.value = "${city}, $country"
             }
         }
     }

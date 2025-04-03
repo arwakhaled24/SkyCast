@@ -2,7 +2,6 @@ package com.example.skycast.alarm.view
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
@@ -30,8 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -47,7 +44,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -56,14 +52,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -80,7 +74,6 @@ import com.example.skycast.alarm.workManager.MyWorker
 import com.example.skycast.data.dataClasses.NotificationDataClass
 import com.example.skycast.ui.theme.PrimaryContainer
 import kotlinx.coroutines.delay
-import java.security.Permission
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -99,7 +92,6 @@ fun Alert(alrmViewModel: AlarmViewModel, currentLocation: Location) {
 @Composable
 fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
@@ -171,7 +163,6 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                 .background(Color(0xFFA5BFCC)),
         ) {
             if (notificationList.isEmpty()) {
-                val context = LocalContext.current
                 Column(
                     Modifier
                         .fillMaxSize(),
@@ -211,7 +202,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                     .padding(bottom = 120.dp)
             ) {
                 val context = LocalContext.current
-                var hasNotidicationPermission = remember {
+                val hasNotidicationPermission = remember {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         mutableStateOf(
                             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -221,7 +212,6 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                         mutableStateOf(true)
                     }
                 }
-
                 val permissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestPermission(),
                     onResult = { isGranted ->
@@ -262,8 +252,6 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                 },
                 sheetState = sheetState
             ) {
-                val dateRangePickerState = rememberDateRangePickerState()
-
                 Column(horizontalAlignment = AbsoluteAlignment.Right) {
                     Box(
                         modifier = Modifier.fillMaxWidth()
@@ -371,7 +359,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                                 ).show()
                             } else {
                                 showBottomSheet = false
-                                var request = OneTimeWorkRequestBuilder<MyWorker>()
+                                val request = OneTimeWorkRequestBuilder<MyWorker>()
                                     .setInitialDelay(
                                         (selectedTimeMillis - currentTimeMillis),
                                         TimeUnit.MILLISECONDS

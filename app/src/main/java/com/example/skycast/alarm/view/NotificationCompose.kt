@@ -1,6 +1,5 @@
 package com.example.skycast.alarm.view
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.data.dataClasses.NotificationDataClass
 
 @RequiresApi(Build.VERSION_CODES.O)

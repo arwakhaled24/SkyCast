@@ -1,6 +1,6 @@
 package com.example.skycast.home.viewModel
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,13 +11,14 @@ import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.repository.WeatherRepository
+import com.example.skycast.utils.SharedPrefrances
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 
-class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() {
+class WeatherViewModel(private val repository: WeatherRepository,context: Context) : ViewModel() {
 
     private var _currentWeather = MutableStateFlow<RespondStatus<CurrentWeatherRespond>>(RespondStatus.Loading)
     var currentWeather: MutableStateFlow<RespondStatus<CurrentWeatherRespond>> = _currentWeather
@@ -28,10 +29,18 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
     private var _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
+
+    var lang= if (SharedPrefrances.getInstance(context).getLanguage()=="English"||
+        SharedPrefrances.getInstance(context).getLanguage()=="الانجليزية ")
+        "en"
+    else
+    {
+        "ar"
+    }
     fun getCurrentWeather(
         lat: String,
         lon: String,
-        language: String = "en",
+        language: String = lang,
         unit: String = "metric"
     ) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -68,8 +77,11 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
 }
 
 
-class MyFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {
+class MyFactory(private val repository: WeatherRepository,val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-        return WeatherViewModel(repository) as T
+        return WeatherViewModel(
+            repository,
+            context = context
+        ) as T
     }
 }
