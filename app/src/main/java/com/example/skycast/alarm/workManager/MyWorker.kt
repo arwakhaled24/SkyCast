@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.skycast.R
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
 import com.example.skycast.data.dataClasses.NotificationDataClass
@@ -28,6 +31,7 @@ class MyWorker(val context: Context, val workerParameters: WorkerParameters) :
         )
     }
     private val _currentWeather = MutableStateFlow<CurrentWeatherRespond?>(null)
+ 
     override suspend fun doWork(): Result {
         val latitude = inputData.getDouble("latitude", 0.0)
         val longitude = inputData.getDouble("longitude", 0.0)
@@ -38,17 +42,18 @@ class MyWorker(val context: Context, val workerParameters: WorkerParameters) :
                 lon = longitude.toString(),
             )
             if (_currentWeather?.value?.weather?.get(0)?.description.isNullOrBlank()) {
-                showNotification("check the Weather Now")
+                showNotification(context.getString(R.string.check_the_weather_now))
             }
             else{
-                showNotification("The Current weather is ${_currentWeather.value?.weather?.get(0)?.description} ")
+                showNotification(" ${context.getString(R.string.the_current_weather_is)} " +
+                        "${ _currentWeather.value?.weather?.get(0)?.description}")
             }
 
 
 
 
         } catch (e: Exception) {
-            showNotification("check the Weather Now")
+            showNotification(context.getString(R.string.check_the_weather_now))
         } finally {
             repository.deleteNotification(workerParameters.id)
         }

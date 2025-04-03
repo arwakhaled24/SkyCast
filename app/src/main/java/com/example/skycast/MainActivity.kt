@@ -285,18 +285,7 @@ fun MainScreen(
 
                 1 -> Favourits(
                     favViewModel,
-                    weatherViewModel,
-                /*    { navController.navigate(AppDestinations.MAP_ROUTE) },
-                    onNavigateToDetails = { latitude, longitude, locationName ->
-                        weatherViewModel.getCurrentWeather(latitude, longitude)
-                        navController.navigate(
-                            AppDestinations.homeRouteWithArgs(
-                                latitude = latitude,
-                                longitude = longitude,
-                                locationName = locationName.replace("/", "-")
-                            )
-                        )
-                    }*/)
+                    weatherViewModel,)
 
                 2 -> Alert(alarmViewModel, currentLocation )
                 3 -> Setting()

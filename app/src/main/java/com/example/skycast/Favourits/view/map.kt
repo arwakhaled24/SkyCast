@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -66,46 +67,36 @@ fun Map(
     val geocoder = remember { Geocoder(context) }
     val city = remember { mutableStateOf("") }
     val country = remember { mutableStateOf("") }
-    val address = remember { mutableStateOf("No Selected Location yet") }
+    val address = remember { mutableStateOf(context.getString(com.example.skycast.R.string.no_selected_location_yet_in_map)) }
     val quertText = remember { mutableStateOf("") }
     val query = remember { mutableStateOf("") }
     val activ = remember { mutableStateOf(false) }
-    val names = listOf("arwa", "sara", "ahmed", "mohamed", "khaled", "bosy")// to be country list
     val searchFlow = remember { MutableSharedFlow<List<String>>(replay = 1) }
     var searchResults = remember { mutableStateOf(emptyList<String>()) }
     val selectedLocation = remember { mutableStateOf<LatLng?>(null) }
     val scope = rememberCoroutineScope()
 
     Column {
+        
         Spacer(modifier = Modifier.height(18.dp))
-
-
         SearchBar(
             onPlaceSelected = { place ->
-
                 selectLocation(place, context, markerPosition, address)
             }
-
         )
-
-
-
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
                     markerPosition.value = latLng
                     updateLocaionAddress(latLng, geocoder, address)
-
                 }
-
             )
             {
                 markerPosition.value?.let { position ->
                     Marker(state = MarkerState(position = position))
                 }
             }
-
             scope.launch() {
                 searchFlow.collect { result ->
                     searchResults.value = result
@@ -120,7 +111,7 @@ fun Map(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()//Color(0xFFA5BFCC)
+                        .fillMaxWidth()
                         .background(Color(0xFFA5BFCC), RoundedCornerShape(12.dp))
                         .padding(20.dp),
                     verticalArrangement = Arrangement.Center,
@@ -145,7 +136,9 @@ fun Map(
                                 )
                                 onLocationAdded()
                             },
-                            modifier = Modifier.fillMaxWidth(0.8f).background(color = BluePeriwinkle),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .background(color = BluePeriwinkle),
                             colors = ButtonColors(
                                 containerColor = BluePeriwinkle ,  //  button background color
                                 contentColor = Color.White,        // Text color
@@ -154,7 +147,7 @@ fun Map(
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("ADD TO FAVORITES", color = Color.White)
+                            Text(stringResource(com.example.skycast.R.string.add_to_favorites), color = Color.White)
                         }
                     }
                 }
@@ -204,7 +197,7 @@ fun SearchBar(
     AndroidView(
         factory = { context ->
             AutoCompleteTextView(context).apply {
-                hint = "Search for a place"
+                hint = context.getString(com.example.skycast.R.string.search_for_a_place)
 
                 setTextColor(textColor.toArgb())
                 setHintTextColor(

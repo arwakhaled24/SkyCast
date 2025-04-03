@@ -35,12 +35,20 @@ class Constant {
             const val ARABIC = "ar"
             const val ENGLISH = "en"
         }
-
-
-
-
         class sharedPrefrances(context: Context){
-            var TEMPERATURE_UNIT =context.getString(R.string.temperature_unit)
+        /*    var TEMPERATURE_UNIT ="Temperature Unit"
+            val WIND_SPEED= "Wind Speen"
+            val LANGUAGE = "language"
+            val LOCATION_SOURCE= "Location Source"
+            val METER_Sec="meter/sec"
+            val CELSIUS  = "C"
+            val KELVIN  ="K"
+            val FAHRENHEIT  ="F"
+            val ARABIC= "Arabic"
+            val ENGLISH= "English"
+            val GPS="GPS"
+            val MAP= "MAP"*/
+        var TEMPERATURE_UNIT =context.getString(R.string.temperature_unit)
             val WIND_SPEED= context.getString(R.string.wind_speed_unit)
             val LANGUAGE = context.getString(R.string.language)
             val LOCATION_SOURCE= context.getString(R.string.edit_location)
@@ -52,7 +60,6 @@ class Constant {
             val ENGLISH= context.getString(R.string.english)
             val GPS= context.getString(R.string.gps)
             val MAP= context.getString(R.string.map)
-
         }
     }
 }

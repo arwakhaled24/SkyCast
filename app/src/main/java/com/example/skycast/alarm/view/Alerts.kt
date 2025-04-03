@@ -1,6 +1,9 @@
 package com.example.skycast.alarm.view
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.widget.Toast
@@ -39,6 +42,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
@@ -62,9 +66,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -74,12 +80,12 @@ import com.example.skycast.alarm.workManager.MyWorker
 import com.example.skycast.data.dataClasses.NotificationDataClass
 import com.example.skycast.ui.theme.PrimaryContainer
 import kotlinx.coroutines.delay
+import java.security.Permission
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-import android.Manifest
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -141,21 +147,21 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                     showSnackbar.value = false
                     deletedItem.value = null
                 }
-                androidx.compose.material3.Snackbar(
+                Snackbar(
                     action = {
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = {
                                 deletedItem.value?.let { alrmViewModel.addNotidication(it) }
                                 showSnackbar.value = false
                                 deletedItem.value = null
                             }
                         ) {
-                            Text("UNDO")
+                            Text(stringResource(R.string.undo))
                         }
                     },
                     modifier = Modifier.padding(bottom = 80.dp)
                 ) {
-                    Text("Alarm Canceled")
+                    Text(stringResource(R.string.alarm_canceled))
                 }
             }
         }) {
@@ -178,7 +184,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                         Modifier.size(300.dp)
                     )
 
-                    Text(text = "No Recorded Alerts Yet", fontSize = 30.sp)
+                    Text(text = stringResource(R.string.no_recorded_alerts_yet), fontSize = 30.sp)
 
                 }
             } else {
@@ -204,11 +210,37 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                     .fillMaxSize()
                     .padding(bottom = 120.dp)
             ) {
-
                 val context = LocalContext.current
+                var hasNotidicationPermission = remember {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        mutableStateOf(
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                                    == PackageManager.PERMISSION_GRANTED
+                        )
+                    } else {
+                        mutableStateOf(true)
+                    }
+                }
+
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                    onResult = { isGranted ->
+                        hasNotidicationPermission.value = isGranted
+                        if (!isGranted){
+                           // shouldShow
+                            //////////////////////////////////////////on permission denaied
+                        }
+                    }
+                )
+
                 FloatingActionButton(
                     onClick = {
-                        showBottomSheet = true
+
+                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        if (hasNotidicationPermission.value){
+                            showBottomSheet = true
+                        }
+
                     },
                     modifier = Modifier
                         .padding(bottom = 0.dp, end = 35.dp)
@@ -282,14 +314,14 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                                         })
                                         {
                                             Text(
-                                                text = "cancel",
+                                                text = stringResource(R.string.cancel),
                                                 color = Color.Red.copy(alpha = 0.5f)
                                             )
                                         }
                                         TextButton(onClick = {
                                             showDatePicker = false
                                         }) {
-                                            Text(text = "okay")
+                                            Text(text = stringResource(R.string.okay))
                                         }
                                         Spacer(modifier = Modifier.fillMaxWidth(0.1F))
                                     }
@@ -316,7 +348,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                             showBottomSheet = false
                         }) {
                             Text(
-                                text = "cancel",
+                                text = stringResource(R.string.cancel),
                                 color = Color.Red.copy(alpha = 0.5f)
                             )
                         }
@@ -334,7 +366,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                             if (selectedTimeMillis <= currentTimeMillis) {
                                 Toast.makeText(
                                     context,
-                                    "Please select a future time",
+                                    context.getString(R.string.please_select_a_future_time),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
@@ -360,7 +392,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                                 )
                             }
                         }) {
-                            Text("add Notification")
+                            Text(stringResource(R.string.add_notification))
                         }
                         Spacer(Modifier.fillMaxWidth(.1f))
                     }
@@ -380,6 +412,7 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
+/*
 
 @Composable
 fun AlertDialogExample(
@@ -445,3 +478,25 @@ fun RequestPermissionScreen() {
         Text("Request Notification Permission")
     }
 }
+
+
+@Composable
+fun checkPermission(context: Context) {
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
+        Button({ permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }) {
+            Text("RequestPermission")
+        }
+
+    }
+
+}
+*/

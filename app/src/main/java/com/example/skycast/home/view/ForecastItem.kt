@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
 import com.example.skycast.utils.SharedPrefrances
 import java.time.LocalDate
@@ -59,7 +61,11 @@ fun ForecastItem(weatherItem: WeatherItem) {
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "H: ${getTempreture(weatherItem.main.tempMax)}°  L: ${getTempreture(weatherItem.main.tempMin)}° ",
+                    text = stringResource(
+                        R.string.h_l,
+                        getTempreture(weatherItem.main.tempMax),
+                        getTempreture(weatherItem.main.tempMin)
+                    ),
                     color = Color.White,
                     fontSize = 14.sp
                 )

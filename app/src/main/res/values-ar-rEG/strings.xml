@@ -15,4 +15,31 @@
     <string name="mile_hour">ميل/ساعه</string>
     <string name="no_favourite_location_yet">لا يوجد مواقع مفضله بعد</string>
     <string name="gps">النظام العالمي </string>
+    <string name="wind">🌬️ الرياح</string>
+    <string name="pressure">📉 الضغط</string>
+    <string name="limited_functionality_available">تم تقييد بعض الميزات</string>
+    <string name="sun_set">🌇️ الغروب</string>
+    <string name="hpa">%1$s hPa</string>
+    <string name="sun_rise">☀️ الشروق</string>
+    <string name="clouds">☁️ السحب</string>
+    <string name="humidity">💦 الرطوبه</string>
+    <string name="offline_mode">غير متصل بالانترنت</string>
+    <string name="h_l">"ع: %1$s°   ص: %2$s° "</string>
+    <string name="am">%1$s  ص</string>
+    <string name="pm">%1$s م</string>
+    <string name="please_select_a_future_time">اختر وقت في المستقبل</string>
+    <string name="no_selected_location_yet">لا يوجد اماكن مفضلة حتي الأن</string>
+    <string name="undo">تراجع</string>
+    <string name="location_removed_from_favorites">"تم حذف موقع من المفضله "</string>
+    <string name="check_the_weather_now">هيا تفقد حالة الطقس</string>
+    <string name="the_current_weather_is">"حالة الطقس الحاليه هي "</string>
+    <string name="alarm_canceled">تم الغاء الاشعار</string>
+    <string name="no_recorded_alerts_yet">لا يوجد اشعارات بعد</string>
+    <string name="cancel">الغاء</string>
+    <string name="okay">تأكيد</string>
+    <string name="add_notification">اضافه اشعار</string>
+    <string name="no_selected_location_yet_in_map">لم تحدد مكان بعد</string>
+    <string name="add_to_favorites">اضافه الي المفضلة</string>
+    <string name="search_for_a_place">ابحث عن موقع</string>
+    <string name="_5_day_forecast">حاله الطقس للأيام القادمين</string>
 </resources>

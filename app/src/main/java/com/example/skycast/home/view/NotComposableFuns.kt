@@ -12,7 +12,7 @@ fun getCurrentTime(): String {
 
 fun getTime(time: Long): String {
     val sdf = SimpleDateFormat("h", Locale.getDefault())
-    val time = sdf.format(Date(time))
+    val time = sdf.format(Date(time * 1000))
     return time
 }
 

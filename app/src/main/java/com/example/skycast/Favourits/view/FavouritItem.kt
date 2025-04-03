@@ -1,4 +1,4 @@
-package com.example.skycast.alarm.view
+package com.example.skycast.Favourits.view
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -26,14 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.dataClasses.LocationDataClass
-import com.example.skycast.data.dataClasses.NotificationDataClass
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NotificationRow(
-    notification: NotificationDataClass,
+fun FavItem(
+    location: LocationDataClass,
+    onItemClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val parts = location.CityName.split(", ")
+    val city = parts.getOrNull(0) ?: ""
+    val country = parts.getOrNull(1) ?: ""
 
     Row(
         modifier = Modifier
@@ -43,6 +47,7 @@ fun NotificationRow(
                 color = Color.Gray.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable { onItemClick() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -52,14 +57,14 @@ fun NotificationRow(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = notification.time,
+                text = city,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = notification.date,
+                text = country,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp
             )
@@ -75,3 +80,4 @@ fun NotificationRow(
         )
     }
 }
+

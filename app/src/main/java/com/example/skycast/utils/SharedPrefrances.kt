@@ -30,31 +30,31 @@ class SharedPrefrances private constructor( val context: Context){
         }
     }
 
-     fun setTemperature(temperature: String) {
+    fun setTemperature(temperature: String) {
         editor!!.putString(sharedPreferencesConstants.TEMPERATURE_UNIT, temperature)
         editor!!.commit()
     }
-     fun getTemperature() = sharedPreferences!!.getString(sharedPreferencesConstants.TEMPERATURE_UNIT
-         ,sharedPreferencesConstants.CELSIUS)!!
+    fun getTemperature() = sharedPreferences!!.getString(sharedPreferencesConstants.TEMPERATURE_UNIT
+        ,sharedPreferencesConstants.CELSIUS)!!
 
 
 
 
-     fun setWindSpeed(windSpeed: String){
+    fun setWindSpeed(windSpeed: String){
         editor!!.putString(sharedPreferencesConstants.WIND_SPEED, windSpeed)
         editor!!.commit()
     }
-     fun getWindSpeed() = sharedPreferences!!.getString(sharedPreferencesConstants.WIND_SPEED,
-         sharedPreferencesConstants.METER_Sec)!!
+    fun getWindSpeed() = sharedPreferences!!.getString(sharedPreferencesConstants.WIND_SPEED,
+        sharedPreferencesConstants.METER_Sec)!!
 
 
 
-    
-     fun setLanguage(language: String){
+
+    fun setLanguage(language: String){
         editor!!.putString(sharedPreferencesConstants.LANGUAGE, language)
         editor!!.commit()
     }
-     fun getLanguage() = sharedPreferences!!.getString(sharedPreferencesConstants.LANGUAGE, sharedPreferencesConstants.ENGLISH)!!
+    fun getLanguage() = sharedPreferences!!.getString(sharedPreferencesConstants.LANGUAGE, sharedPreferencesConstants.ENGLISH)!!
 
 
 

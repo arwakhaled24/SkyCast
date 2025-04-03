@@ -20,9 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
 import com.example.skycast.utils.SharedPrefrances
 import kotlin.math.absoluteValue
@@ -48,7 +50,9 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int ) {
             val pm = time - 12
             val am = time - 24
             Text(
-                text = if (time <= 12) "$time AM " else if (time <= 24) "$pm PM" else "$am AM",
+                text = if (time <= 12) stringResource(R.string.am, time) else if (time <= 24) stringResource(
+                    R.string.pm, pm
+                ) else stringResource(R.string.am, time),
                 color = Color.White
             )
             Text(text = " ${getTempreture(wearherItem.main.temp)} $unit", color = Color.White)
