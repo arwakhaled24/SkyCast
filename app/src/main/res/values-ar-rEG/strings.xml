@@ -19,7 +19,7 @@
     <string name="pressure">📉 الضغط</string>
     <string name="limited_functionality_available">تم تقييد بعض الميزات</string>
     <string name="sun_set">🌇️ الغروب</string>
-    <string name="hpa">%1$s hPa</string>
+    <string name="hpa">%1$s هيكتوباسكال</string>
     <string name="sun_rise">☀️ الشروق</string>
     <string name="clouds">☁️ السحب</string>
     <string name="humidity">💦 الرطوبه</string>
@@ -41,7 +41,7 @@
     <string name="no_selected_location_yet_in_map">لم تحدد مكان بعد</string>
     <string name="add_to_favorites">اضافه الي المفضلة</string>
     <string name="search_for_a_place">ابحث عن موقع</string>
-    <string name="_5_day_forecast">حاله الطقس للأيام القادمين</string>
+    <string name="_5_day_forecast">حاله الطقس للأيام القادمة</string>
     <string name="l">ص:%1$s°</string>
     <string name="h">ع:%1$s°</string>
     <string name="set_this_location">اختيار هذا الموقع</string>

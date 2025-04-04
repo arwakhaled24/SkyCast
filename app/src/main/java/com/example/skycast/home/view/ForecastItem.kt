@@ -22,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
-import com.example.skycast.utils.SharedPrefrances
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -54,8 +52,7 @@ fun ForecastItem(weatherItem: WeatherItem) {
             "SUNDAY" to "الأحد"
         )
     )
-
-    val unit = SharedPrefrances.getInstance(context).getTemperature()
+    val unit =getTemperatureSymbol(context)
     val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val date: LocalDateTime = LocalDateTime.parse(weatherItem.dtTxt, firstApiFormat)
     val locale = context.resources.configuration.locales[0]
@@ -81,7 +78,13 @@ fun ForecastItem(weatherItem: WeatherItem) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "${getTempreture(weatherItem.main.temp)} $unit",
+                    text = "${formatNumbers(
+                        getTemperature(
+                            weatherItem.main.temp,
+                            context = context
+                        ).toDouble(),
+                        context = context,
+                    )} $unit",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
@@ -89,8 +92,20 @@ fun ForecastItem(weatherItem: WeatherItem) {
                 Text(
                     text = stringResource(
                         R.string.h_l,
-                        getTempreture(weatherItem.main.tempMax),
-                        getTempreture(weatherItem.main.tempMin)
+                        formatNumbers(
+                            getTemperature(
+                                weatherItem.main.tempMax,
+                                context = context
+                            ).toDouble(),
+                            context = context
+                        ),
+                        formatNumbers(
+                            getTemperature(
+                                weatherItem.main.tempMin,
+                                context = context
+                            ).toDouble(),
+                            context = context
+                        )
                     ),
                     color = Color.White,
                     fontSize = 14.sp
@@ -104,5 +119,5 @@ fun ForecastItem(weatherItem: WeatherItem) {
             )
         }
 
-
 }
+

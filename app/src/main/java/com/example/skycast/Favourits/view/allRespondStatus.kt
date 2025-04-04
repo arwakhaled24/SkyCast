@@ -155,7 +155,7 @@ fun OnSuccess(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.empity_box_backgroundless),
+                        painter = painterResource(id = R.drawable.cart_free),
                         contentDescription = "Empty List",
                         Modifier.size(300.dp)
                     )

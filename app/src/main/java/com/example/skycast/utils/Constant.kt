@@ -36,31 +36,11 @@ class Constant {
         }
 
         class sharedPrefrances(context: Context) {
-            /*    val TEMPERATURE_UNIT = "Temperature Unit"
-                val WIND_SPEED = "Wind Speed"
-                val LANGUAGE = "language"
-                val LOCATION_SOURCE = "Location Source"
-
-                val METER_Sec = context.getString(R.string.m_sec)
-                val MILE_HOURE = context.getString(R.string.mile_hour)
-                val CELSIUS = context.getString(R.string.celsius_c)
-                val KELVIN = context.getString(R.string.kelvin_k)
-                val FAHRENHEIT = context.getString(R.string.fahrenheit_f)
-                val ARABIC = context.getString(R.string.arabic)
-                val ENGLISH = context.getString(R.string.english)
-                val GPS = context.getString(R.string.gps)
-                val MAP = context.getString(R.string.map)
-                val SELETED_LAT = "SELECTEDLAT"
-                val SELETED_LONG = "SELECTED_LONG"
-                val IS_SELECTED_LOCATION = "IS_SELECTED_LOCATION"*/
-
-
              var TEMPERATURE_UNIT ="Temperature Unit"
              val WIND_SPEED= "Wind Speen"
              val LANGUAGE = "language"
              val LOCATION_SOURCE= "Location Source"
-          //  v
-            /*al METER_Sec="meter/sec"
+              val METER_Sec="meter/sec"
              val MILE_HOURE="mile/hour"
              val CELSIUS  = "°C"
              val KELVIN  ="°K"
@@ -68,17 +48,7 @@ class Constant {
              val ARABIC= "Arabic"
              val ENGLISH= "English"
              val GPS="GPS"
-             val MAP= "MAP"*/
-          val METER_Sec = context.getString(R.string.m_sec)
-            val MILE_HOURE = context.getString(R.string.mile_hour)
-            val CELSIUS = context.getString(R.string.celsius_c)
-            val KELVIN = context.getString(R.string.kelvin_k)
-            val FAHRENHEIT = context.getString(R.string.fahrenheit_f)
-            val ARABIC = context.getString(R.string.arabic)
-            val ENGLISH = context.getString(R.string.english)
-            val GPS = context.getString(R.string.gps)
-            val MAP = context.getString(R.string.map)
-
+             val MAP= "MAP"
              val SELETED_LAT= "SELECTEDLAT"
              val SELETED_LONG= "SELECTED_LONG"
              val IS_SELECTED_LOCATION="IS_SELECTED_LOCATION"

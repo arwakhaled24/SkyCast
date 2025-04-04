@@ -3,7 +3,6 @@ package com.example.skycast.alarm.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -82,15 +81,19 @@ import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Alert(alrmViewModel: AlarmViewModel, currentLocation: Location) {
-    AlertScreen(alrmViewModel, currentLocation)
+fun Alert(alrmViewModel: AlarmViewModel, currenTocationLat: String, currenTocationLong: String) {
+    AlertScreen(alrmViewModel, currenTocationLat, currenTocationLong)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
+fun AlertScreen(
+    alrmViewModel: AlarmViewModel,
+    currenTocationLat: String,
+    currenTocationLong: String
+) {
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -114,7 +117,6 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
         }
     )
     val currentTime = Calendar.getInstance()
-
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
@@ -135,7 +137,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
         snackbarHost = {
             if (showSnackbar.value && deletedItem.value != null) {
                 LaunchedEffect(showSnackbar.value) {
-                    delay(2000) // Show for 3 seconds
+                    delay(2000)
                     showSnackbar.value = false
                     deletedItem.value = null
                 }
@@ -170,7 +172,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.empity_box_backgroundless),
+                        painter = painterResource(id = R.drawable.cart_free),
                         contentDescription = "Empity List",
                         Modifier.size(300.dp)
                     )
@@ -202,10 +204,13 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                     .padding(bottom = 120.dp)
             ) {
                 val context = LocalContext.current
-                val hasNotidicationPermission = remember {
+                val hasNotificationPermission = remember {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         mutableStateOf(
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            )
                                     == PackageManager.PERMISSION_GRANTED
                         )
                     } else {
@@ -215,22 +220,19 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                 val permissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestPermission(),
                     onResult = { isGranted ->
-                        hasNotidicationPermission.value = isGranted
-                        if (!isGranted){
-                           // shouldShow
+                        hasNotificationPermission.value = isGranted
+                        if (!isGranted) {
+                            // shouldShow
                             //////////////////////////////////////////on permission denaied
                         }
                     }
                 )
-
                 FloatingActionButton(
                     onClick = {
-
                         permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        if (hasNotidicationPermission.value){
+                        if (hasNotificationPermission.value) {
                             showBottomSheet = true
                         }
-
                     },
                     modifier = Modifier
                         .padding(bottom = 0.dp, end = 35.dp)
@@ -247,7 +249,6 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
-
                     showBottomSheet = false
                 },
                 sheetState = sheetState
@@ -317,9 +318,7 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                             }
                         }
                     }
-
                     Spacer(Modifier.fillMaxHeight(.05f))
-
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
@@ -366,8 +365,8 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                                     )
                                     .setInputData(
                                         workDataOf(
-                                            "latitude" to currenTocation.latitude,
-                                            "longitude" to currenTocation.longitude
+                                            "latitude" to currenTocationLat,
+                                            "longitude" to currenTocationLong
                                         ),
                                     ).build()
                                 WorkManager.getInstance(context).enqueue(request)
@@ -385,14 +384,10 @@ fun AlertScreen(alrmViewModel: AlarmViewModel, currenTocation: Location) {
                         Spacer(Modifier.fillMaxWidth(.1f))
                     }
                     Spacer(Modifier.fillMaxHeight(.1f))
-
                 }
-
-
             }
         }
     }
-
 }
 
 
@@ -400,91 +395,3 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
-/*
-
-@Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-    icon: ImageVector,
-) {
-    AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
-}
-
-@Composable
-fun RequestPermissionScreen() {
-    val context = LocalContext.current
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(context, "Permission Denied!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    Button(onClick = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }) {
-        Text("Request Notification Permission")
-    }
-}
-
-
-@Composable
-fun checkPermission(context: Context) {
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ) {
-        Button({ permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }) {
-            Text("RequestPermission")
-        }
-
-    }
-
-}
-*/

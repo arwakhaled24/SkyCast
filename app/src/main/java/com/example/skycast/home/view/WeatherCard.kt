@@ -1,5 +1,6 @@
 package com.example.skycast.home.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +24,7 @@ fun WeatherSubCard(title: String, value: String) {
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .padding(4.dp)
-            .size(110.dp, 90.dp),
+            .size(120.dp, 100.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.6f))
     ) {
         Column(
@@ -31,8 +32,9 @@ fun WeatherSubCard(title: String, value: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            Text(text = value, fontSize = 16.sp)
+            Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Log.i("TAG", "WeatherSubCard: $value")
+            Text(text = value, fontSize = 14.sp)
         }
     }
 }

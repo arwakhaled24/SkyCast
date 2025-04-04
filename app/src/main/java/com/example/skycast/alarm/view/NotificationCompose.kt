@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.dataClasses.NotificationDataClass
+import com.example.skycast.home.view.formatNumbers
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -32,7 +33,6 @@ fun NotificationRow(
     notification: NotificationDataClass,
     onDeleteClick: () -> Unit
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,7 +57,7 @@ fun NotificationRow(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = notification.date,
+                text =notification.date,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp
             )

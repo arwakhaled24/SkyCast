@@ -1,8 +1,19 @@
 package com.example.skycast.home.view
 
+import android.graphics.BlurMaskFilter
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,12 +30,19 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,17 +56,19 @@ import com.example.skycast.utils.SharedPrefrances
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnHomeSuccess(
-    currenntWeather: CurrentWeatherRespond,
-    forecasteRespond: ForecasteRespond,
+    currentWeather: CurrentWeatherRespond,
+    forecastRespond: ForecasteRespond,
     isConnected: Boolean
 ) {
     val context = LocalContext.current
-    val unit = SharedPrefrances.getInstance(context).getTemperature()
-    println( getTime(1743573600))
+    val unit = getTemperatureSymbol(context)
+    println(currentWeather.name)
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -114,25 +134,27 @@ fun OnHomeSuccess(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = currenntWeather.name,
+                        text = currentWeather.name.ifEmpty { "Your city" },
                         fontSize = 24.sp,
                         color = Color.White,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-
                     Spacer(Modifier.height(10.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = getTempreture(currenntWeather.main.temp),
+                            text = formatNumbers(
+                                getTemperature(
+                                    currentWeather.main.temp,
+                                    context = context
+                                ).toDouble(), context
+                            ),
                             fontSize = 64.sp,
                             color = Color.White
                         )
-
                         if (unit != null) {
                             Text(
                                 text = unit,
@@ -142,11 +164,9 @@ fun OnHomeSuccess(
                             )
                         }
                     }
-
                     Spacer(Modifier.height(10.dp))
-
                     Text(
-                        text = currenntWeather.weather[0].description,
+                        text = currentWeather.weather[0].description,
                         fontSize = 20.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center,
@@ -154,9 +174,14 @@ fun OnHomeSuccess(
                     )
 
                     Spacer(Modifier.height(10.dp))
-                    
-                    val firstApiFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    val date = LocalDate.parse(forecasteRespond.list[0].dtTxt, firstApiFormat)
+                    val isArabic = SharedPrefrances.getInstance(context).getLanguage() == "arabic"
+                    val locale = if (isArabic) Locale("ar") else Locale("en")
+                    Locale.setDefault(locale)
+                    val firstApiFormat =
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale("en"))
+                    val date = LocalDate.parse(forecastRespond.list[0].dtTxt, firstApiFormat)
+
+
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -165,16 +190,32 @@ fun OnHomeSuccess(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(text = date.month.name, fontSize = 16.sp, color = Color.White)
+                            Text(
+                                text = formatNumbers(
+                                    date.monthValue.toDouble(),
+                                    context = context
+                                ),
+                                fontSize = 16.sp, color = Color.White
+                            )
                             Spacer(Modifier.width(5.dp))
-                            Text(text = date.year.toString(), fontSize = 16.sp, color = Color.White)
+                            Text("-", color = Color.White)
+                            Text(
+                                text = formatNumbers(
+                                    date.dayOfMonth.toDouble(),
+                                    context = context
+                                ),
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                            Text("-", color = Color.White)
+                            Text(
+                                text = formatNumbers(
+                                    date.year.toDouble(),
+                                    context = context
+                                ),
+                                fontSize = 16.sp, color = Color.White
+                            )
                         }
-
-                        Text(
-                            text = date.dayOfWeek.name,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
                     }
 
                     Spacer(Modifier.height(10.dp))
@@ -184,13 +225,25 @@ fun OnHomeSuccess(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = stringResource(R.string.h, currenntWeather.main.tempMax.toInt()),
+                            text = stringResource(
+                                R.string.h,
+                                formatNumbers(
+                                    currentWeather.main.tempMax.toInt().toDouble(),
+                                    context = context
+                                )
+                            ),
                             fontSize = 16.sp,
                             color = Color.White
                         )
                         Spacer(Modifier.width(5.dp))
                         Text(
-                            text = stringResource(R.string.l, currenntWeather.main.tempMin.toInt()),
+                            text = stringResource(
+                                R.string.l,
+                                formatNumbers(
+                                    currentWeather.main.tempMin.toInt().toDouble(),
+                                    context = context
+                                )
+                            ),
                             fontSize = 16.sp,
                             color = Color.White
                         )
@@ -198,21 +251,21 @@ fun OnHomeSuccess(
                 }
             }
         }
-
-
         item { Spacer(modifier = Modifier.height(32.dp)) }
-
         item {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                val todayForecast = toDaysForecast(forecasteRespond.list)
+                val todayForecast = toDaysForecast(forecastRespond.list)
                 val todayHourlyForecast = interpolateHourlyForecast(todayForecast)
                 items(24) { index ->
                     val item = todayHourlyForecast[index]
-                    val time = getTime(currenntWeather.dt).toInt()+index
-                    HourlyForecastItem(item, time )
+                    val time = getTime(currentWeather.dt).toInt() + index
+                    HourlyForecastItem(
+                        item,
+                        time = time
+                    )
                 }
             }
         }
@@ -231,34 +284,68 @@ fun OnHomeSuccess(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        WeatherSubCard(stringResource(R.string.humidity), "${currenntWeather.main.humidity}%")
-                        WeatherSubCard(stringResource(R.string.clouds), "${currenntWeather.clouds.all}%")
-                        WeatherSubCard(stringResource(R.string.sun_rise), getTimeWithM(currenntWeather.sys.sunrise))
+                        WeatherSubCard(
+                            stringResource(R.string.humidity),
+                            "${
+                                formatNumbers(
+                                    currentWeather.main.humidity.toDouble(),
+                                    context = context
+                                )
+                            }%"
+                        )
+                        WeatherSubCard(
+                            stringResource(R.string.clouds),
+                            "${
+                                formatNumbers(
+                                    currentWeather.clouds.all.toDouble(),
+                                    context = context
+                                )
+                            }%"
+                        )
+                        WeatherSubCard(
+                            stringResource(R.string.sun_rise),
+                            getTimeWithM(currentWeather.sys.sunrise)
+                        )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-
-                        WeatherSubCard(stringResource(R.string.wind), getWIndSpeed(currenntWeather))
+                        WeatherSubCard(
+                            stringResource(R.string.wind), getWIndSpeed(
+                                currentWeather,
+                                context = context
+                            )
+                        )
                         WeatherSubCard(
                             stringResource(R.string.pressure),
-                            stringResource(R.string.hpa, currenntWeather.main.pressure)
+                            stringResource(
+                                R.string.hpa, formatNumbers(
+                                    (currentWeather.main.pressure).toDouble(),
+                                    context = context
+                                )
+                            )
+
                         )
-                        WeatherSubCard(stringResource(R.string.sun_set), getTimeWithM(currenntWeather.sys.sunset))
+                        WeatherSubCard(
+                            stringResource(R.string.sun_set),
+                            getTimeWithM(currentWeather.sys.sunset)
+                        )
                     }
                 }
             }
         }
 
         item {
-            Text(text = stringResource(R.string._5_day_forecast), fontSize = 20.sp, color = Color.White)
+            Text(
+                text = stringResource(R.string._5_day_forecast),
+                fontSize = 20.sp,
+                color = Color.White
+            )
         }
-
         item { Spacer(modifier = Modifier.height(8.dp)) }
-
-        items(forecasteRespond.list.size) { index ->
-            ForecastItem(forecasteRespond.list[index])
+        items(forecastRespond.list.size) { index ->
+            ForecastItem(forecastRespond.list[index])
         }
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
@@ -266,26 +353,109 @@ fun OnHomeSuccess(
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 @Composable
 fun OnLoading() {
+    var text = "L o a d i n g"
     Column(
         Modifier.fillMaxSize(),
         Arrangement.Center,
         Alignment.CenterHorizontally
 
-    ) { CircularProgressIndicator() }
+    ) {
+        val blurList = text.mapIndexed { index, char ->
+            if (char == ' ') {
+                remember { mutableStateOf(0f) }
+            } else {
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "infinite transition $index")
+                infiniteTransition.animateFloat(
+                    initialValue = 10f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(
+                            durationMillis = 500,
+                            easing = LinearEasing,
+
+                            ),
+                        repeatMode = RepeatMode.Reverse,
+                        initialStartOffset = StartOffset(
+                            offsetMillis = 1000 / text.length * index
+                        )
+                    ),
+                    label = "label",
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+
+        ) {
+            text.forEachIndexed { index, char ->
+
+                Text(
+                    text = char.toString(),
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .graphicsLayer {
+                            if (char != ' ') {
+                                val blueAmount = blurList[index].value
+                                renderEffect = BlurEffect(
+                                    radiusX = blueAmount,
+                                    radiusY = blueAmount,
+                                )
+                            }
+                        }
+                        .then(
+                            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) {
+                                Modifier.fullContentBlure(
+                                    { blurList[index].value.roundToInt() }
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
+                )
+            }
+
+        }
+
+    }
+}
+
+private fun Modifier.fullContentBlure(
+    blureRadius: () -> Int,
+    color: Color = Color.Black
+): Modifier {
+    return drawWithCache {
+        val radius = blureRadius()
+        val nativePaint: Paint = Paint().apply {
+            isAntiAlias = true
+            this.color = color.toArgb()
+            if (radius > 0) {
+                BlurMaskFilter(
+                    radius.toFloat(),
+                    BlurMaskFilter.Blur.NORMAL
+                )
+            }
+        }
+        onDrawWithContent {
+            drawContent()
+
+            drawIntoCanvas { canvas ->
+                canvas.save()
+                val rect = RectF(0f, 0f, size.width.toFloat(), size.height.toFloat())
+                canvas.nativeCanvas.drawRect(rect, nativePaint)
+                canvas.restore()
+
+            }
+        }
+
+    }
+
 }
 
 @Composable
@@ -293,3 +463,5 @@ fun OnError(e: Throwable) {
     val context = LocalContext.current
     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
 }
+
+

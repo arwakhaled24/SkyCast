@@ -38,7 +38,7 @@ class SharedPrefrances private constructor(val context: Context) {
         editor!!.commit()
     }
 
-    fun getTemperature() = sharedPreferences!!.getString("tempUnit", sharedPreferencesConstants.CELSIUS)
+    fun getTemperature() = sharedPreferences!!.getString("tempUnit", sharedPreferencesConstants.CELSIUS)!!
 
 
     fun setWindSpeed( windSpeed: String) {

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun CardView(title: Int, options: List<String>, icon: Int,onOptionSelected:(String) -> Unit,selectedOption:String) {
+fun CardView(title: Int, options: List<String>, icon: Int, onOptionSelected:  (String) -> Unit, selectedOption:String) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp,

@@ -26,21 +26,15 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
     private var _forecast = MutableStateFlow<RespondStatus<ForecasteRespond>>(RespondStatus.Loading)
     var forecast:MutableStateFlow<RespondStatus<ForecasteRespond>> = _forecast
 
-    private var _message = MutableLiveData<String>()
-    val message: LiveData<String> = _message
-
-
-    var lang= if (SharedPrefrances.getInstance(context).getLanguage()=="English"||
-        SharedPrefrances.getInstance(context).getLanguage()=="الانجليزية ")
-        "en"
-    else
-    {
-        "ar"
+    private val _lang = MutableLiveData<String>().apply {
+        value = if (SharedPrefrances.getInstance(context).getLanguage()
+            in listOf("english", "الانجليزية")) "en" else "ar"
     }
+    val lang: LiveData<String> = _lang
     fun getCurrentWeather(
         lat: String,
         lon: String,
-        language: String = lang,
+        language: String = lang.value?:"en",
         unit: String = "metric"
     ) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -58,7 +52,7 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
     fun getForecast(
         lat: String,
         lon: String,
-        language: String = "en",
+        language: String = lang.value?: "en",
         unit: String = "metric"
     ) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -73,9 +67,10 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
         }
     }
 
-
+    fun updateLanguage(context: Context) {
+        _lang.value = if (SharedPrefrances.getInstance(context).getLanguage() in listOf("english", "الانجليزية")) "en" else "ar"
+    }
 }
-
 
 class MyFactory(private val repository: WeatherRepository,val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {

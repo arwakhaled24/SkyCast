@@ -122,13 +122,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             selectedLat = remember { mutableStateOf(0.0) }
             selectedLong = remember { mutableStateOf(0.0) }
-
             weatherViewModel = viewModel(factory = myFactory)
             favViewModel = viewModel(factory = myFavFactory)
             alarmViewModel = viewModel(factory = MyalarmFactory)
             currentLocation = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
             SkyCastTheme {
-                MainScreen(weatherViewModel, favViewModel, alarmViewModel, currentLocation.value,selectedLong.value,selectedLat.value)
+                MainScreen(weatherViewModel, favViewModel, alarmViewModel,selectedLong.value,selectedLat.value)
             }
 
         }
@@ -154,12 +153,12 @@ class MainActivity : ComponentActivity() {
                 )
                 Log.i("TAG", "onStart:fromLocation ")
             }
-        } else {
+        }/* else {
             Log.i("TAG", "onStart:from shared ")
             Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLat()}")
             Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLong()}")
 
-        }
+        }*/
     }
 
     private fun checkPermissions(): Boolean {
@@ -199,7 +198,6 @@ class MainActivity : ComponentActivity() {
                     locationResult.lastLocation?.latitude ?: Location(LocationManager.GPS_PROVIDER).latitude
                     selectedLong.value=
                         locationResult.lastLocation?.longitude ?: Location(LocationManager.GPS_PROVIDER).longitude
-                    Log.i("TAG", "Lat: ${selectedLat.value}, Long: ${selectedLong.value}")
                 }
             },
             Looper.myLooper()
@@ -207,7 +205,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun enableLocationServices() {
-        Toast.makeText(this, "enable location", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, " please enable location", Toast.LENGTH_SHORT).show()
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivity(intent)
     }
@@ -245,16 +243,10 @@ fun MainScreen(
     weatherViewModel: WeatherViewModel,
     favViewModel: FavouritsViewModel,
     alarmViewModel: AlarmViewModel,
-    currentLocation: Location,
    selectedLong:Double,
     selectedLat:Double,
 ) {
-
     val selectedIndex = remember { mutableStateOf(0) }
-    val msg = weatherViewModel.message.observeAsState()
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Favorites", Icons.Default.Favorite),
@@ -268,14 +260,12 @@ fun MainScreen(
         selectedLa= SharedPrefrances.getInstance(context).getLat().toDouble()
         selectedLo=SharedPrefrances.getInstance(context).getLong().toDouble()
     }
-    Log.i("TAG", "MainScreen: ${selectedLa} ")
-    Log.i("TAG", "MainScreen: ${selectedLo} ")
+
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = Color(0xFFA5BFCC),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar(modifier = Modifier.background(Color(0xFFA5BFCC/*0xFF95a6c9*/))) {
                 navItems.forEachIndexed({ index, screen ->
@@ -306,6 +296,7 @@ fun MainScreen(
                 )
             )
         }) { targetState ->
+            weatherViewModel.updateLanguage(context)
             when (targetState) {
 
                 0 -> Home(
@@ -318,8 +309,11 @@ fun MainScreen(
                     favViewModel,
                     weatherViewModel,
                 )
-
-                2 -> Alert(alarmViewModel, currentLocation)
+                2 -> Alert(
+                    alarmViewModel,
+                    currenTocationLat = selectedLa.toString(),
+                    currenTocationLong = selectedLo.toString(),
+                )
                 3 -> Setting()
             }
         }
