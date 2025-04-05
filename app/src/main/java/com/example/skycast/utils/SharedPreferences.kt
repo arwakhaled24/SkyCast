@@ -88,5 +88,13 @@ class SharedPreferences private constructor(val context: Context) {
         fun isSelectedLocation() =
             sharedPreferences!!.getBoolean(sharedPreferencesConstants.IS_SELECTED_LOCATION, false)!!
 
+    fun isFirstRun(): Boolean {
+        val isFirstRun = sharedPreferences!!.getBoolean("is_first_run", true)
+        if (isFirstRun) {
+            editor!!.putBoolean("is_first_run", false).apply()
+        }
+        return isFirstRun
+    }
+
 }
 

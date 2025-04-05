@@ -87,9 +87,7 @@ fun OnSettings(showMap: MutableState<Boolean>) {
         )
     }
     var selectedLocationSource by remember {
-        mutableStateOf(
-            pref.getLocationSource()
-        )
+        mutableStateOf(pref.getLocationSource())
     }
     var selectedWindSpeedUnit by remember {
         mutableStateOf(

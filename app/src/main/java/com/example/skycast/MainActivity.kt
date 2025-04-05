@@ -2,6 +2,7 @@ package com.example.skycast
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -48,6 +49,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.recreate
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -85,6 +87,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.libraries.places.api.Places
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 private const val LOCATION_PERMISSION_CODE = 1
 
@@ -213,6 +217,7 @@ class MainActivity : ComponentActivity() {
                     selectedLong.value =
                         locationResult.lastLocation?.longitude
                             ?: Location(LocationManager.GPS_PROVIDER).longitude
+                    Log.i("TAG", "onLocationResult: $selectedLong.value")
                 }
             },
             Looper.myLooper()
@@ -270,11 +275,15 @@ fun MainScreen(
     )
     var selectedLo = selectedLong
     var selectedLa = selectedLat
+    Log.i("TAG", "MainScreen: $selectedLa")
     val context = LocalContext.current
     if (SharedPreferences.getInstance(context).isSelectedLocation()) {
         selectedLa = SharedPreferences.getInstance(context).getLat().toDouble()
         selectedLo = SharedPreferences.getInstance(context).getLong().toDouble()
     }
+
+    Log.i("TAG", "MainScreen: $selectedLa ")
+
     weatherViewModel.getForecast(lat = selectedLa.toString(), lon = selectedLo.toString())
     weatherViewModel.getCurrentWeather(lat = selectedLa.toString(), lon = selectedLo.toString(),)
     val lottie= rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.stars))
@@ -358,6 +367,12 @@ fun MainScreen(
                 }
             }
         }
+    if (SharedPreferences.getInstance(context).isFirstRun()) {
+        runBlocking {
+            delay(1000)
+            (context as Activity).recreate()
+        }
+    }
 }
 
 @Composable
