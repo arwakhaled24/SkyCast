@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(
                     MyDatabase.getInstance(context = this).getDao(),
                 )
-            ), this
+            ), SharedPreferences.getInstance(this)
         )
         var myFavFactory = MyFavFactory(
             WeatherRepository.getInstance(
@@ -170,7 +170,6 @@ class MainActivity : ComponentActivity() {
                     ),
                     LOCATION_PERMISSION_CODE
                 )
-                Log.i("TAG", "onStart:fromLocation ")
             }
         }
     }

@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.sp
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.R
 import com.example.skycast.data.dataClasses.LocationDataClass
-import com.example.skycast.ui.theme.PrimaryContainer
 import kotlinx.coroutines.delay
 
 @Composable
@@ -59,7 +58,6 @@ fun OnLoading() {
         Modifier.fillMaxSize(),
         Arrangement.Center,
         Alignment.CenterHorizontally
-
     ) { CircularProgressIndicator() }
 }
 
@@ -158,7 +156,6 @@ fun OnSuccess(
                         contentDescription = "Empty List",
                         Modifier.size(300.dp)
                     )
-
                     Text(text = stringResource(R.string.no_selected_location_yet),fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                 }
             } else {

@@ -17,20 +17,27 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
+class WeatherViewModel(private val repository: WeatherRepository, sharepref: SharedPreferences) : ViewModel() {
 
-class WeatherViewModel(private val repository: WeatherRepository,context: Context) : ViewModel() {
+
 
     private var _currentWeather = MutableStateFlow<RespondStatus<CurrentWeatherRespond>>(RespondStatus.Loading)
     var currentWeather: MutableStateFlow<RespondStatus<CurrentWeatherRespond>> = _currentWeather
 
+
+
     private var _forecast = MutableStateFlow<RespondStatus<ForecasteRespond>>(RespondStatus.Loading)
     var forecast:MutableStateFlow<RespondStatus<ForecasteRespond>> = _forecast
 
+
+
     private val _lang = MutableLiveData<String>().apply {
-        value = if (SharedPreferences.getInstance(context).getLanguage()
+        value = if (sharepref.getLanguage()
             in listOf("english", "الانجليزية","English")) "en" else "ar"
     }
     private val lang: LiveData<String> = _lang
+
+
 
     fun getCurrentWeather(
         lat: String,
@@ -50,6 +57,8 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
         }
     }
 
+
+
     fun getForecast(
         lat: String,
         lon: String,
@@ -68,16 +77,18 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
         }
     }
 
+
+
     fun updateLanguage(context: Context) {
         _lang.value = if (SharedPreferences.getInstance(context).getLanguage() in listOf("english", "الانجليزية")) "en" else "ar"
     }
 }
 
-class MyFactory(private val repository: WeatherRepository,val context: Context) : ViewModelProvider.Factory {
+class MyFactory(private val repository: WeatherRepository,val sharepref: SharedPreferences) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         return WeatherViewModel(
             repository,
-            context = context
+         sharepref
         ) as T
     }
 }

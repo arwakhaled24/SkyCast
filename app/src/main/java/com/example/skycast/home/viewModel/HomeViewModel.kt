@@ -10,6 +10,9 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class HomeViewModel :ViewModel() {
+
+
+
     fun getWIndSpeed(currentWeather: CurrentWeatherRespond, context: Context): String {
         return if (SharedPreferences.getInstance(context)
                 .getWindSpeed() != Constant.Companion.sharedPrefrances(context).METER_Sec
@@ -41,9 +44,6 @@ class HomeViewModel :ViewModel() {
         formatter.isGroupingUsed = false
         return formatter.format(number)
     }
-
-
-
 
 
 }
