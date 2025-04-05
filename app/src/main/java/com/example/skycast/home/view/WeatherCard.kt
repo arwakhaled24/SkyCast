@@ -25,16 +25,16 @@ fun WeatherSubCard(title: String, value: String) {
         modifier = Modifier
             .padding(4.dp)
             .size(120.dp, 100.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.6f))
+        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.4f))
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Log.i("TAG", "WeatherSubCard: $value")
-            Text(text = value, fontSize = 14.sp)
+            Text(text = value, fontSize = 14.sp, color = Color.White)
         }
     }
 }

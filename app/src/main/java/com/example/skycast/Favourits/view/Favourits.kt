@@ -58,7 +58,7 @@ fun Favourits(
                     onPlaceSelected = { locationDataClass ->
                         favViewModel.addFavLocation(locationDataClass)
                     },
-                    buttontext = context.getString(R.string.add_to_favorites),
+                    buttonText = context.getString(R.string.add_to_favorites),
                 )
             }
         }

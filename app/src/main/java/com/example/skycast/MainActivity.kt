@@ -23,7 +23,8 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.with
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -33,22 +34,23 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bumptech.glide.integration.ktx.ExperimentGlideFlows
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.Favourits.viewModel.MyFavFactory
@@ -57,17 +59,20 @@ import com.example.skycast.alarm.AlarmViewModel
 import com.example.skycast.alarm.view.Alert
 import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
+import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.NavItem
+import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
 import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.home.view.Home
 import com.example.skycast.home.viewModel.MyFactory
 import com.example.skycast.home.viewModel.WeatherViewModel
-import com.example.skycast.ui.theme.SkyCastTheme
-import com.example.skycast.utils.getMetaDataValue
 import com.example.skycast.settings.Setting
+import com.example.skycast.ui.theme.PrimaryContainer
+import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.utils.SharedPrefrances
+import com.example.skycast.utils.getMetaDataValue
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -101,7 +106,7 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(
                     MyDatabase.getInstance(context = this).getDao(),
                 )
-            ),this
+            ), this
         )
         var myFavFactory = MyFavFactory(
             WeatherRepository.getInstance(
@@ -127,7 +132,13 @@ class MainActivity : ComponentActivity() {
             alarmViewModel = viewModel(factory = MyalarmFactory)
             currentLocation = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
             SkyCastTheme {
-                MainScreen(weatherViewModel, favViewModel, alarmViewModel,selectedLong.value,selectedLat.value)
+                MainScreen(
+                    weatherViewModel,
+                    favViewModel,
+                    alarmViewModel,
+                    selectedLong.value,
+                    selectedLat.value
+                )
             }
 
         }
@@ -194,10 +205,12 @@ class MainActivity : ComponentActivity() {
                 LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
-                    selectedLat.value=
-                    locationResult.lastLocation?.latitude ?: Location(LocationManager.GPS_PROVIDER).latitude
-                    selectedLong.value=
-                        locationResult.lastLocation?.longitude ?: Location(LocationManager.GPS_PROVIDER).longitude
+                    selectedLat.value =
+                        locationResult.lastLocation?.latitude
+                            ?: Location(LocationManager.GPS_PROVIDER).latitude
+                    selectedLong.value =
+                        locationResult.lastLocation?.longitude
+                            ?: Location(LocationManager.GPS_PROVIDER).longitude
                 }
             },
             Looper.myLooper()
@@ -233,8 +246,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -243,9 +254,10 @@ fun MainScreen(
     weatherViewModel: WeatherViewModel,
     favViewModel: FavouritsViewModel,
     alarmViewModel: AlarmViewModel,
-   selectedLong:Double,
-    selectedLat:Double,
+    selectedLong: Double,
+    selectedLat: Double,
 ) {
+
     val selectedIndex = remember { mutableStateOf(0) }
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
@@ -253,70 +265,112 @@ fun MainScreen(
         NavItem("Notification", Icons.Default.Notifications),
         NavItem("Settings", Icons.Default.List)
     )
-    var selectedLo=selectedLong
-    var selectedLa=selectedLat
-    val context= LocalContext.current
-    if (SharedPrefrances.getInstance(context).isSelectedLocation()){
-        selectedLa= SharedPrefrances.getInstance(context).getLat().toDouble()
-        selectedLo=SharedPrefrances.getInstance(context).getLong().toDouble()
+    var selectedLo = selectedLong
+    var selectedLa = selectedLat
+    val context = LocalContext.current
+    if (SharedPrefrances.getInstance(context).isSelectedLocation()) {
+        selectedLa = SharedPrefrances.getInstance(context).getLat().toDouble()
+        selectedLo = SharedPrefrances.getInstance(context).getLong().toDouble()
     }
-
-
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-        containerColor = Color(0xFFA5BFCC),
-        bottomBar = {
-            NavigationBar(modifier = Modifier.background(Color(0xFFA5BFCC/*0xFF95a6c9*/))) {
-                navItems.forEachIndexed({ index, screen ->
-                    NavigationBarItem(
-                        label = { screen.name },
-                        icon = {
-                            Icon(
-                                imageVector = screen.icon,
-                                contentDescription = "navigation icon"
-                            )
-                        },
-                        onClick = { selectedIndex.value = index },
-                        selected = if (selectedIndex.value == index) true else false,
+            modifier = Modifier
+                .fillMaxSize(),
+            containerColor = Color.Gray.copy(alpha = 0.8f),
+            bottomBar = {
+                NavigationBar(containerColor = Color.Gray.copy(alpha = .8f)) {
+                    navItems.forEachIndexed({ index, screen ->
+                        NavigationBarItem(
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = Color.White,
+                                unselectedIconColor = Color.White.copy(alpha = 0.6f),
+                                indicatorColor = Color.Gray.copy(alpha = 1.2f)
+                            ),
+                            label = { screen.name },
+                            icon = {
+                                Icon(
+                                    imageVector = screen.icon,
+                                    contentDescription = "navigation icon"
+                                )
+                            },
+                            onClick = { selectedIndex.value = index },
+                            selected = if (selectedIndex.value == index) true else false,
+                        )
+                    })
+                }
+            }
+        ) {
+            val cotext = LocalContext.current
+            AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
+                slideIntoContainer(
+                    animationSpec = tween(500, easing = EaseIn),
+                    towards = Left
+                ).with(
+                    slideOutOfContainer(
+                        animationSpec = tween(500, easing = EaseOut),
+                        towards = Right
                     )
-                })
+                )
+            }) { targetState ->
+                weatherViewModel.updateLanguage(context)
+                Box {
+                    Image(
+                        painter = painterResource(getDayNightBackground(weatherViewModel)?:R.drawable.day),
+                        contentDescription = "Background",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    when (targetState) {
+
+                        0 -> Home(
+                            lat = selectedLo.toString(),
+                            long = selectedLa.toString(),
+                            weatherViewModel,
+                        )
+
+                        1 -> Favourits(
+                            favViewModel,
+                            weatherViewModel,
+                        )
+
+                        2 -> Alert(
+                            alarmViewModel,
+                            currenTocationLat = selectedLa.toString(),
+                            currenTocationLong = selectedLo.toString(),
+                        )
+
+                        3 -> Setting()
+                    }
+                }
+
             }
         }
-    ) {
-        val cotext = LocalContext.current
-        AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
-            slideIntoContainer(
-                animationSpec = tween(500, easing = EaseIn),
-                towards = Left
-            ).with(
-                slideOutOfContainer(
-                    animationSpec = tween(500, easing = EaseOut),
-                    towards = Right
-                )
-            )
-        }) { targetState ->
-            weatherViewModel.updateLanguage(context)
-            when (targetState) {
+}
 
-                0 -> Home(
-                    lat = selectedLo.toString(),
-                    long = selectedLa.toString(),
-                    weatherViewModel,
-                )
+@Composable
+fun getDayNightBackground(weatherViewModel: WeatherViewModel): Int? {
+    val forecastState = weatherViewModel.forecast.collectAsState().value
 
-                1 -> Favourits(
-                    favViewModel,
-                    weatherViewModel,
-                )
-                2 -> Alert(
-                    alarmViewModel,
-                    currenTocationLat = selectedLa.toString(),
-                    currenTocationLong = selectedLo.toString(),
-                )
-                3 -> Setting()
+    return when {
+        forecastState is RespondStatus.Loading -> null
+        forecastState is RespondStatus.Error -> null
+        else -> {
+            val iconCode = (forecastState as? RespondStatus.Success)?.result
+                ?.list
+                ?.firstOrNull()
+                ?.weather
+                ?.firstOrNull()
+                ?.icon
+                ?: "01d"
+
+            if (iconCode.endsWith("n")) {
+                    R.drawable.ihone_packgound
+
+            } else {
+                PrimaryContainer= Color(0x98D8EF)
+                R.drawable.day
             }
         }
     }
 }
+
 

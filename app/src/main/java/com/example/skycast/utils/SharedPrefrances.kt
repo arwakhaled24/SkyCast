@@ -91,3 +91,4 @@ class SharedPrefrances private constructor(val context: Context) {
             sharedPreferences!!.getBoolean(sharedPreferencesConstants.IS_SELECTED_LOCATION, false)!!
 
 }
+

@@ -31,6 +31,7 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
             in listOf("english", "الانجليزية")) "en" else "ar"
     }
     val lang: LiveData<String> = _lang
+
     fun getCurrentWeather(
         lat: String,
         lon: String,

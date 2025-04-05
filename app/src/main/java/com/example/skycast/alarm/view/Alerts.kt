@@ -132,9 +132,10 @@ fun AlertScreen(
     val showSnackbar = remember { mutableStateOf(false) }
     val deletedItem = remember { mutableStateOf<NotificationDataClass?>(null) }
     Scaffold(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFFA5BFCC)),
-        snackbarHost = {
+        .fillMaxSize(),
+        containerColor = Color.Transparent
+        //  .background(Color(0xFFA5BFCC)),
+        , snackbarHost = {
             if (showSnackbar.value && deletedItem.value != null) {
                 LaunchedEffect(showSnackbar.value) {
                     delay(2000)
@@ -162,7 +163,7 @@ fun AlertScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFA5BFCC)),
+            //          .background(Color(0xFFA5BFCC)),
         ) {
             if (notificationList.isEmpty()) {
                 Column(
@@ -240,9 +241,10 @@ fun AlertScreen(
                         .width(50.dp)
                         .height(50.dp),
                     shape = RoundedCornerShape(20.dp),
-                    containerColor = PrimaryContainer
+                     containerColor = Color.Gray.copy(alpha = 0.9f),
+                    contentColor = Color.White
                 ) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = "FAB")
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "FAB", tint = Color.White)
                 }
             }
         }

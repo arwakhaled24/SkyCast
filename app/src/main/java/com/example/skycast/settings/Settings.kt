@@ -9,8 +9,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -21,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -56,17 +59,14 @@ fun Setting() {
                     showMap.value = false
                    (context as Activity).recreate()
                 },
-                buttontext = stringResource(R.string.set_this_location)
+                buttonText = stringResource(R.string.set_this_location)
             )
         }
     }
     if(!showMap.value) {
         OnSettings(showMap)
     }
-
 }
-
-
 @Composable
 fun OnSettings(showMap: MutableState<Boolean>) {
     val languageHelber by lazy {
@@ -106,9 +106,12 @@ fun OnSettings(showMap: MutableState<Boolean>) {
     }
 
     Column(
-        modifier = Modifier
-            .padding(top = 5.dp, bottom = 5.dp)
-            .background(Color(0xFFA5BFCC))
+        modifier = Modifier.fillMaxSize()
+            .padding(vertical = 16.dp)
+    //        .background(Color(0xFFA5BFCC)),
+        ,
+        //verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(25.dp))
         CardView(

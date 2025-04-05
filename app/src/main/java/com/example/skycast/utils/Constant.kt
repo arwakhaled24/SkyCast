@@ -55,6 +55,7 @@ class Constant {
 
 
 
+
          /*   val SELECTED_LAT: String="SELECTEDLAT"
             val SELECTED_LONG: String= "SELECTED_LONG"
             var TEMPERATURE_UNIT = R.string.temperature_unit

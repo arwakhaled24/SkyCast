@@ -15,14 +15,17 @@ import androidx.compose.ui.platform.LocalContext
 val DeepPurple = Color(0xFF211C84)  // Main brand color - deep purple
 val BrightPurple = Color(0xFF4D55CC) // Secondary bright purple
 val LavenderPurple = Color(0xFF7A73D1) // Lighter purple shade
-val PaleLavender = Color(0xFFB5A8D5) // Lightest purple shade
+val PaleLavender = Color(0xFF212121) // Lightest purple shade
 
 // Additional complementary colors
-val PureWhite = Color(0xFFFFFFFF)
+val PureWhite = Color(0xFF02A3040)
 val OffWhite = Color(0xFFF8F7FF)
 val DarkGray = Color(0xFF333333)
 val MediumGray = Color(0xFF666666)
-val PrimaryContainer = Color(0xFFcfe2f3)
+/*
+var PrimaryContainer = Color(0xff2A3040)
+*/
+var PrimaryContainer = Color(0xff0473c8)
 
 private val LightColorScheme = lightColorScheme(
     primary = DeepPurple,        // Primary brand color

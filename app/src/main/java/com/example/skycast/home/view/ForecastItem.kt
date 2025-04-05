@@ -63,7 +63,7 @@ fun ForecastItem(weatherItem: WeatherItem) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 16.dp)
-                .background(Color.Gray.copy(alpha = 0.6f), shape = RoundedCornerShape(12.dp))
+                .background(Color.Gray.copy(alpha = 0.4f), shape = RoundedCornerShape(12.dp))
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,

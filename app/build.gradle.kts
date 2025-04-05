@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.play.services.location)
     implementation(libs.androidx.storage)
+    implementation(libs.androidx.media3.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -133,6 +134,13 @@ dependencies {
     // //localization
       implementation ("androidx.appcompat:appcompat:1.6.1")
 
+    /// video backGround
+    implementation ("androidx.media3:media3-exoplayer:1.3.0")
+
+    //lottie
+    implementation ("androidx.media3:media3-exoplayer:1.3.0")
+    implementation ("androidx.media3:media3-ui:1.3.0")
+    implementation("com.airbnb.android:lottie-compose:6.3.0")
 
 }
 

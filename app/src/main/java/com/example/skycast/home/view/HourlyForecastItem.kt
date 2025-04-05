@@ -32,7 +32,7 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int, modifier: Modifier=M
             .padding(8.dp)
             .size(100.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Gray.copy(alpha = 0.6f)
+            containerColor = Color.Gray.copy(alpha = 0.4f)
         )
     ) {
         Column(

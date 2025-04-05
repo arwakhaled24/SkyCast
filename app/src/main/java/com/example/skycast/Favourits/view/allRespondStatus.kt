@@ -71,16 +71,17 @@ fun OnSuccess(
     favViewModel: FavouritsViewModel,
     onFabClick: () -> Unit,
     onItemClick: (LocationDataClass) -> Unit,
-    isConnected:Boolean
+    isConnected: Boolean
 ) {
     val showSnackbar = remember { mutableStateOf(false) }
     val deletedItem = remember { mutableStateOf<LocationDataClass?>(null) }
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFA5BFCC)),
-        snackbarHost = {
+            .fillMaxSize(),
+        containerColor = Color.Transparent
+        //      .background(Color(0xFFA5BFCC)),
+        , snackbarHost = {
 
             if (showSnackbar.value && deletedItem.value != null) {
                 LaunchedEffect(showSnackbar.value) {
@@ -111,9 +112,9 @@ fun OnSuccess(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFA5BFCC))
+            //         .background(Color(0xFFA5BFCC))
         ) {
-            if (! isConnected) {
+            if (!isConnected) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -197,10 +198,12 @@ fun OnSuccess(
                     .width(50.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                containerColor = PrimaryContainer,
+               // containerColor = PrimaryContainer,
+                containerColor = Color.Gray.copy(alpha = 0.9f), // Slightly transparent
+                contentColor = Color.White
 
                 ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location")
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Location", tint = Color.White)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.skycast.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,16 +8,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -25,13 +26,20 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun CardView(title: Int, options: List<String>, icon: Int, onOptionSelected:  (String) -> Unit, selectedOption:String) {
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 5.dp,
-            hoveredElevation = 25.dp
-        ),
-        modifier = Modifier.height(height = 100.dp)
+fun CardView(
+    title: Int,
+    options: List<String>,
+    icon: Int,
+    onOptionSelected: (String) -> Unit,
+    selectedOption: String
+) {
+    Card (
+        modifier = Modifier
+            .height(height = 100.dp)
+       //     .background(color = Color.Gray.copy(alpha = 0.4f)),
+      ,  colors = CardDefaults.cardColors(
+            containerColor = Color.Gray.copy(alpha = 0.4f)
+        )
     ) {
         Spacer(modifier = Modifier.height(15.dp))
         Row(modifier = Modifier.padding(start = 5.dp)) {
@@ -40,14 +48,18 @@ fun CardView(title: Int, options: List<String>, icon: Int, onOptionSelected:  (S
             Text(text = stringResource(title), fontSize = 22.sp)
         }
         Row {
-            RadioButtonGroup(options,onOptionSelected,selectedOption)
+            RadioButtonGroup(options, onOptionSelected, selectedOption)
         }
     }
 }
 
 
 @Composable
-fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit,selectedOption:String=listOptions[0]) {
+fun RadioButtonGroup(
+    listOptions: List<String>,
+    onOptionSelected: (String) -> Unit,
+    selectedOption: String = listOptions[0]
+) {
 //    var (selectedOption,optionClicked) = remember { mutableStateOf(defauilSelectedOption) }
 
 
@@ -58,7 +70,7 @@ fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit
             .selectableGroup()
             .fillMaxWidth()
     ) {
-       // selectedOption=defauilSelectedOption
+        // selectedOption=defauilSelectedOption
 
 
         radioOptions.forEach { text ->
@@ -75,7 +87,7 @@ fun RadioButtonGroup(listOptions: List<String>,onOptionSelected:(String) -> Unit
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = {onOptionSelected(text)}
+                    onClick = { onOptionSelected(text) }
                 )
                 Text(
                     text = text,

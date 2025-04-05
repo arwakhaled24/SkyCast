@@ -14,6 +14,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,9 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,288 +72,288 @@ fun OnHomeSuccess(
     val context = LocalContext.current
     val unit = getTemperatureSymbol(context)
     println(currentWeather.name)
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFA5BFCC)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        item { Spacer(modifier = Modifier.height(25.dp)) }
 
-        item {
-            if (!isConnected) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.Red.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            //    .background(Color(0xFFA5BFCC)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            item { Spacer(modifier = Modifier.height(25.dp)) }
 
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.offline_mode),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
+            item {
+                if (!isConnected) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = Color.Red.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(8.dp)
                             )
-                            Text(
-                                text = stringResource(R.string.limited_functionality_available),
-                                fontSize = 14.sp,
-                                color = Color.White.copy(alpha = 0.9f)
-                            )
-                        }
-                    }
-                }
-
-            }
-        }
-
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Gray.copy(alpha = 0.3f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = currentWeather.name.ifEmpty { "Your city" },
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = formatNumbers(
-                                getTemperature(
-                                    currentWeather.main.temp,
-                                    context = context
-                                ).toDouble(), context
-                            ),
-                            fontSize = 64.sp,
-                            color = Color.White
-                        )
-                        if (unit != null) {
-                            Text(
-                                text = unit,
-                                fontSize = 16.sp,
-                                color = Color.White,
-                                modifier = Modifier.align(Alignment.Bottom)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        text = currentWeather.weather[0].description,
-                        fontSize = 20.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-                    val isArabic = SharedPrefrances.getInstance(context).getLanguage() == "arabic"
-                    val locale = if (isArabic) Locale("ar") else Locale("en")
-                    Locale.setDefault(locale)
-                    val firstApiFormat =
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale("en"))
-                    val date = LocalDate.parse(forecastRespond.list[0].dtTxt, firstApiFormat)
-
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
+                            .padding(16.dp)
                     ) {
                         Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = formatNumbers(
-                                    date.monthValue.toDouble(),
-                                    context = context
-                                ),
-                                fontSize = 16.sp, color = Color.White
-                            )
-                            Spacer(Modifier.width(5.dp))
-                            Text("-", color = Color.White)
-                            Text(
-                                text = formatNumbers(
-                                    date.dayOfMonth.toDouble(),
-                                    context = context
-                                ),
-                                fontSize = 18.sp,
-                                color = Color.White
-                            )
-                            Text("-", color = Color.White)
-                            Text(
-                                text = formatNumbers(
-                                    date.year.toDouble(),
-                                    context = context
-                                ),
-                                fontSize = 16.sp, color = Color.White
-                            )
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = stringResource(R.string.offline_mode),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.limited_functionality_available),
+                                    fontSize = 14.sp,
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
                         }
                     }
 
-                    Spacer(Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(
-                                R.string.h,
-                                formatNumbers(
-                                    currentWeather.main.tempMax.toInt().toDouble(),
-                                    context = context
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(
-                            text = stringResource(
-                                R.string.l,
-                                formatNumbers(
-                                    currentWeather.main.tempMin.toInt().toDouble(),
-                                    context = context
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                    }
                 }
             }
-        }
-        item { Spacer(modifier = Modifier.height(32.dp)) }
-        item {
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                val todayForecast = toDaysForecast(forecastRespond.list)
-                val todayHourlyForecast = interpolateHourlyForecast(todayForecast)
-                items(24) { index ->
-                    val item = todayHourlyForecast[index]
-                    val time = getTime(currentWeather.dt).toInt() + index
-                    HourlyForecastItem(
-                        item,
-                        time = time
+
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                   // elevation = CardDefaults.cardElevation(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Gray.copy(alpha = 0.3f)
                     )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = currentWeather.name.ifEmpty { "Your city" },
+                            fontSize = 24.sp,
+                            color = Color.White,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = formatNumbers(
+                                    getTemperature(
+                                        currentWeather.main.temp,
+                                        context = context
+                                    ).toDouble(), context
+                                ),
+                                fontSize = 64.sp,
+                                color = Color.White
+                            )
+                            if (unit != null) {
+                                Text(
+                                    text = unit,
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    modifier = Modifier.align(Alignment.Bottom)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            text = currentWeather.weather[0].description,
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(Modifier.height(10.dp))
+                        val isArabic = SharedPrefrances.getInstance(context).getLanguage() == "arabic"
+                        val locale = if (isArabic) Locale("ar") else Locale("en")
+                        Locale.setDefault(locale)
+                        val firstApiFormat =
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale("en"))
+                        val date = LocalDate.parse(forecastRespond.list[0].dtTxt, firstApiFormat)
+
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = formatNumbers(
+                                        date.monthValue.toDouble(),
+                                        context = context
+                                    ),
+                                    fontSize = 16.sp, color = Color.White
+                                )
+                                Spacer(Modifier.width(5.dp))
+                                Text("-", color = Color.White)
+                                Text(
+                                    text = formatNumbers(
+                                        date.dayOfMonth.toDouble(),
+                                        context = context
+                                    ),
+                                    fontSize = 18.sp,
+                                    color = Color.White
+                                )
+                                Text("-", color = Color.White)
+                                Text(
+                                    text = formatNumbers(
+                                        date.year.toDouble(),
+                                        context = context
+                                    ),
+                                    fontSize = 16.sp, color = Color.White
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    R.string.h,
+                                    formatNumbers(
+                                        currentWeather.main.tempMax.toInt().toDouble(),
+                                        context = context
+                                    )
+                                ),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                            Spacer(Modifier.width(5.dp))
+                            Text(
+                                text = stringResource(
+                                    R.string.l,
+                                    formatNumbers(
+                                        currentWeather.main.tempMin.toInt().toDouble(),
+                                        context = context
+                                    )
+                                ),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
-        }
-
-        item { Spacer(modifier = Modifier.height(16.dp)) }
-
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        WeatherSubCard(
-                            stringResource(R.string.humidity),
-                            "${
-                                formatNumbers(
-                                    currentWeather.main.humidity.toDouble(),
-                                    context = context
-                                )
-                            }%"
-                        )
-                        WeatherSubCard(
-                            stringResource(R.string.clouds),
-                            "${
-                                formatNumbers(
-                                    currentWeather.clouds.all.toDouble(),
-                                    context = context
-                                )
-                            }%"
-                        )
-                        WeatherSubCard(
-                            stringResource(R.string.sun_rise),
-                            getTimeWithM(currentWeather.sys.sunrise)
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        WeatherSubCard(
-                            stringResource(R.string.wind), getWIndSpeed(
-                                currentWeather,
-                                context = context
-                            )
-                        )
-                        WeatherSubCard(
-                            stringResource(R.string.pressure),
-                            stringResource(
-                                R.string.hpa, formatNumbers(
-                                    (currentWeather.main.pressure).toDouble(),
-                                    context = context
-                                )
-                            )
-
-                        )
-                        WeatherSubCard(
-                            stringResource(R.string.sun_set),
-                            getTimeWithM(currentWeather.sys.sunset)
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+            item {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    val todayForecast = toDaysForecast(forecastRespond.list)
+                    val todayHourlyForecast = interpolateHourlyForecast(todayForecast)
+                    items(24) { index ->
+                        val item = todayHourlyForecast[index]
+                        val time = getTime(currentWeather.dt).toInt() + index
+                        HourlyForecastItem(
+                            item,
+                            time = time
                         )
                     }
                 }
             }
-        }
 
-        item {
-            Text(
-                text = stringResource(R.string._5_day_forecast),
-                fontSize = 20.sp,
-                color = Color.White
-            )
+            item { Spacer(modifier = Modifier.height(10.dp)) }
+
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            WeatherSubCard(
+                                stringResource(R.string.humidity),
+                                "${
+                                    formatNumbers(
+                                        currentWeather.main.humidity.toDouble(),
+                                        context = context
+                                    )
+                                }%"
+                            )
+                            WeatherSubCard(
+                                stringResource(R.string.clouds),
+                                "${
+                                    formatNumbers(
+                                        currentWeather.clouds.all.toDouble(),
+                                        context = context
+                                    )
+                                }%"
+                            )
+                            WeatherSubCard(
+                                stringResource(R.string.sun_rise),
+                                getTimeWithM(currentWeather.sys.sunrise)
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            WeatherSubCard(
+                                stringResource(R.string.wind), getWIndSpeed(
+                                    currentWeather,
+                                    context = context
+                                )
+                            )
+                            WeatherSubCard(
+                                stringResource(R.string.pressure),
+                                stringResource(
+                                    R.string.hpa, formatNumbers(
+                                        (currentWeather.main.pressure).toDouble(),
+                                        context = context
+                                    )
+                                )
+
+                            )
+                            WeatherSubCard(
+                                stringResource(R.string.sun_set),
+                                getTimeWithM(currentWeather.sys.sunset)
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string._5_day_forecast),
+                    fontSize = 20.sp,
+                    color = Color.White
+                )
+            }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+            items(forecastRespond.list.size) { index ->
+                ForecastItem(forecastRespond.list[index])
+            }
+            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-        items(forecastRespond.list.size) { index ->
-            ForecastItem(forecastRespond.list[index])
-        }
-        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
-
-}
 
 
 @Composable
@@ -392,7 +395,7 @@ fun OnLoading() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
 
-        ) {
+            ) {
             text.forEachIndexed { index, char ->
 
                 Text(
@@ -422,7 +425,6 @@ fun OnLoading() {
             }
 
         }
-
     }
 }
 

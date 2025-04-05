@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +60,7 @@ import kotlinx.coroutines.withContext
 fun Map(
     onPlaceSelected:(LocationDataClass) -> Unit,
     onLocationAdded: () -> Unit,
-    buttontext:String
+    buttonText:String
 ) {
     val context = LocalContext.current
     val markerPosition = remember { mutableStateOf<LatLng?>(null) }
@@ -68,21 +70,21 @@ fun Map(
     val searchResults = remember { mutableStateOf(emptyList<String>()) }
     val scope = rememberCoroutineScope()
 
-    Column {
-        
-        Spacer(modifier = Modifier.height(18.dp))
-        SearchBar(
-            onPlaceSelected = { place ->
-                selectLocation(place, context, markerPosition, address)
-            }
-        )
+    Column{
+
         Box(modifier = Modifier.fillMaxSize()) {
+
+
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
                     markerPosition.value = latLng
                     updateLocationAddress(latLng, geocoder, address)
-                }
+                },
+                uiSettings = MapUiSettings(
+                    zoomControlsEnabled = false,
+
+                )
             )
             {
                 markerPosition.value?.let { position ->
@@ -94,7 +96,13 @@ fun Map(
                     searchResults.value = result
                 }
             }
-
+            Box{
+                SearchBar(
+                    onPlaceSelected = { place ->
+                        selectLocation(place, context, markerPosition, address)
+                    }
+                )
+            }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -129,16 +137,16 @@ fun Map(
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
-                                .background(color = BluePeriwinkle),
+                                .background(color = Color.Gray),
                             colors = ButtonColors(
-                                containerColor = BluePeriwinkle ,  //  button background color
+                                containerColor = Color.Gray ,  //  button background color
                                 contentColor = Color.White,        // Text color
                                 disabledContainerColor = Color.Gray,
                                 disabledContentColor = Color.LightGray
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(buttontext, color = Color.White)
+                            Text(buttonText, color = Color.White)
                         }
                     }
                 }
@@ -181,8 +189,13 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onPlaceSelected: (String) -> Unit
 ) {
-    val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val backgroundColor = Color.Gray.copy(alpha = 0.8f)
+    val shape = RoundedCornerShape(24.dp)
+    val textColor =  Color.White
     AndroidView(
+        /*modifier = Modifier.padding(horizontal = 16.dp)
+            .background(backgroundColor,shape)
+            .height(56.dp)*///,
         factory = { context ->
             AutoCompleteTextView(context).apply {
                 hint = context.getString(com.example.skycast.R.string.search_for_a_place)
@@ -232,7 +245,9 @@ fun SearchBar(
         },
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp)//padding(horizontal = 16.dp)
+            .background(backgroundColor,shape)
+            .height(56.dp)
     )
 }
 

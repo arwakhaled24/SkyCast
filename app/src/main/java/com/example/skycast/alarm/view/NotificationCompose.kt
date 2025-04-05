@@ -38,7 +38,7 @@ fun NotificationRow(
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .background(
-                color = Color.Gray.copy(alpha = 0.6f),
+                color = Color.Gray.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(8.dp),
