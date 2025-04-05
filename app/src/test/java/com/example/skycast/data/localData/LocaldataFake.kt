@@ -2,9 +2,11 @@ package com.example.skycast.data.localData
 
 import com.example.skycast.data.LocalData.ILocalDataSource
 import com.example.skycast.data.dataClasses.LocationDataClass
+import com.example.skycast.data.dataClasses.NotificationDataClass
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
+import java.util.UUID
 
 class LocaldataFake:ILocalDataSource {
 
@@ -26,5 +28,17 @@ class LocaldataFake:ILocalDataSource {
     override suspend fun addFavLocation(locationDataClass: LocationDataClass): Long {
              locations.add(locationDataClass)
         return locationDataClass.id.toLong()
+    }
+
+    override suspend fun getAllNotification(): Flow<List<NotificationDataClass>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addNotification(notification: NotificationDataClass): Long {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteNotification(notificationid: UUID): Int {
+        TODO("Not yet implemented")
     }
 }

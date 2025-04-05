@@ -28,7 +28,7 @@
     <string name="pm">%1$s PM</string>
     <string name="location_removed_from_favorites">Location removed from favorites</string>
     <string name="check_the_weather_now">check the Weather Now</string>
-    <string name="the_current_weather_is">"The Current weather is %1$s "</string>
+    <string name="the_current_weather_is">"The Current weather is"</string>
     <string name="alarm_canceled">Alarm Canceled</string>
     <string name="no_recorded_alerts_yet">No Recorded Alerts Yet</string>
     <string name="cancel">cancel</string>
@@ -44,4 +44,5 @@
     <string name="l">L:%1$s°</string>
     <string name="h">H:%1$s°</string>
     <string name="set_this_location">set this location</string>
+    <string name="l_o_a_d_i_n_g">"L o a d i n g "</string>
 </resources>

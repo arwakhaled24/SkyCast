@@ -49,9 +49,6 @@ class MyWorker(val context: Context, val workerParameters: WorkerParameters) :
                         "${ _currentWeather.value?.weather?.get(0)?.description}")
             }
 
-
-
-
         } catch (e: Exception) {
             showNotification(context.getString(R.string.check_the_weather_now))
         } finally {

@@ -14,7 +14,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,9 +43,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,7 +52,8 @@ import androidx.compose.ui.unit.sp
 import com.example.skycast.R
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
-import com.example.skycast.utils.SharedPrefrances
+import com.example.skycast.home.viewModel.HomeViewModel
+import com.example.skycast.utils.SharedPreferences
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -67,7 +65,8 @@ import kotlin.math.roundToInt
 fun OnHomeSuccess(
     currentWeather: CurrentWeatherRespond,
     forecastRespond: ForecasteRespond,
-    isConnected: Boolean
+    isConnected: Boolean,
+    homeViewModel: HomeViewModel
 ) {
     val context = LocalContext.current
     val unit = getTemperatureSymbol(context)
@@ -150,8 +149,8 @@ fun OnHomeSuccess(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = formatNumbers(
-                                    getTemperature(
+                                text = homeViewModel.formatNumbers(
+                                    homeViewModel.getTemperature(
                                         currentWeather.main.temp,
                                         context = context
                                     ).toDouble(), context
@@ -178,7 +177,7 @@ fun OnHomeSuccess(
                         )
 
                         Spacer(Modifier.height(10.dp))
-                        val isArabic = SharedPrefrances.getInstance(context).getLanguage() == "arabic"
+                        val isArabic = SharedPreferences.getInstance(context).getLanguage() == "arabic"
                         val locale = if (isArabic) Locale("ar") else Locale("en")
                         Locale.setDefault(locale)
                         val firstApiFormat =
@@ -195,7 +194,7 @@ fun OnHomeSuccess(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = formatNumbers(
+                                    text = homeViewModel.formatNumbers(
                                         date.monthValue.toDouble(),
                                         context = context
                                     ),
@@ -204,7 +203,7 @@ fun OnHomeSuccess(
                                 Spacer(Modifier.width(5.dp))
                                 Text("-", color = Color.White)
                                 Text(
-                                    text = formatNumbers(
+                                    text = homeViewModel.formatNumbers(
                                         date.dayOfMonth.toDouble(),
                                         context = context
                                     ),
@@ -213,7 +212,7 @@ fun OnHomeSuccess(
                                 )
                                 Text("-", color = Color.White)
                                 Text(
-                                    text = formatNumbers(
+                                    text = homeViewModel.formatNumbers(
                                         date.year.toDouble(),
                                         context = context
                                     ),
@@ -231,7 +230,7 @@ fun OnHomeSuccess(
                             Text(
                                 text = stringResource(
                                     R.string.h,
-                                    formatNumbers(
+                                    homeViewModel.formatNumbers(
                                         currentWeather.main.tempMax.toInt().toDouble(),
                                         context = context
                                     )
@@ -243,7 +242,7 @@ fun OnHomeSuccess(
                             Text(
                                 text = stringResource(
                                     R.string.l,
-                                    formatNumbers(
+                                    homeViewModel.formatNumbers(
                                         currentWeather.main.tempMin.toInt().toDouble(),
                                         context = context
                                     )
@@ -268,7 +267,8 @@ fun OnHomeSuccess(
                         val time = getTime(currentWeather.dt).toInt() + index
                         HourlyForecastItem(
                             item,
-                            time = time
+                            time = time,
+                           homeViewModel =  homeViewModel
                         )
                     }
                 }
@@ -291,7 +291,7 @@ fun OnHomeSuccess(
                             WeatherSubCard(
                                 stringResource(R.string.humidity),
                                 "${
-                                    formatNumbers(
+                                    homeViewModel.formatNumbers(
                                         currentWeather.main.humidity.toDouble(),
                                         context = context
                                     )
@@ -300,7 +300,7 @@ fun OnHomeSuccess(
                             WeatherSubCard(
                                 stringResource(R.string.clouds),
                                 "${
-                                    formatNumbers(
+                                    homeViewModel.formatNumbers(
                                         currentWeather.clouds.all.toDouble(),
                                         context = context
                                     )
@@ -316,7 +316,7 @@ fun OnHomeSuccess(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             WeatherSubCard(
-                                stringResource(R.string.wind), getWIndSpeed(
+                                stringResource(R.string.wind), homeViewModel.getWIndSpeed(
                                     currentWeather,
                                     context = context
                                 )
@@ -324,7 +324,7 @@ fun OnHomeSuccess(
                             WeatherSubCard(
                                 stringResource(R.string.pressure),
                                 stringResource(
-                                    R.string.hpa, formatNumbers(
+                                    R.string.hpa, homeViewModel.formatNumbers(
                                         (currentWeather.main.pressure).toDouble(),
                                         context = context
                                     )
@@ -349,7 +349,10 @@ fun OnHomeSuccess(
             }
             item { Spacer(modifier = Modifier.height(8.dp)) }
             items(forecastRespond.list.size) { index ->
-                ForecastItem(forecastRespond.list[index])
+                ForecastItem(
+                    forecastRespond.list[index],
+                    homeViewModel = homeViewModel,
+                )
             }
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
@@ -358,7 +361,7 @@ fun OnHomeSuccess(
 
 @Composable
 fun OnLoading() {
-    var text = "L o a d i n g"
+    var text = stringResource(R.string.l_o_a_d_i_n_g)
     Column(
         Modifier.fillMaxSize(),
         Arrangement.Center,

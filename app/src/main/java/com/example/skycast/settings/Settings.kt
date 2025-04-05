@@ -5,11 +5,7 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,25 +21,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.skycast.Favourits.view.Map
 import com.example.skycast.R
+import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.utils.Constant
 import com.example.skycast.utils.LanguageChangeHelper
 import com.example.skycast.utils.NetworkConnectivityObserver
-import com.example.skycast.utils.SharedPrefrances
+import com.example.skycast.utils.SharedPreferences
 
-@Preview
 @Composable
 fun Setting() {
     val context = LocalContext.current
     val showMap = remember { mutableStateOf(false) }
     val connectivityObserver = remember { NetworkConnectivityObserver(context) }
-    val isConnected by connectivityObserver.networkStatus.collectAsState(initial = true)
+    val isConnected by connectivityObserver.networkStatus.collectAsState(initial = false)
     AnimatedVisibility(
         visible = showMap.value,
         enter = fadeIn(animationSpec = tween(500)) +
@@ -53,7 +48,7 @@ fun Setting() {
         if (isConnected) {
             Map(
                 onPlaceSelected = { locationDataClass ->
-                    SharedPrefrances.getInstance(context).inMap(locationDataClass)
+                    SharedPreferences.getInstance(context).inMap(locationDataClass)
                 },
                 onLocationAdded = {
                     showMap.value = false
@@ -74,16 +69,13 @@ fun OnSettings(showMap: MutableState<Boolean>) {
     }
     val context = LocalContext.current
     var currentLanguageCode = languageHelber.getLanguageCode(context)
-    var currentLanguage = rememberSaveable { mutableStateOf(currentLanguageCode) }
-    var onCurrentLanguageChange: (String) -> Unit = { code ->
+    val onCurrentLanguageChange: (String) -> Unit = { code ->
         currentLanguageCode = code
         languageHelber.changelanguage(context, code)
         (context as Activity).recreate()
     }
-
-    val pref = SharedPrefrances.getInstance(context)
+    val pref = SharedPreferences.getInstance(context)
     val prefConstant = Constant.Companion.sharedPrefrances(context)
-
     var selectedLanguage by remember {
         mutableStateOf(
             pref.getLanguage()
@@ -107,10 +99,7 @@ fun OnSettings(showMap: MutableState<Boolean>) {
 
     Column(
         modifier = Modifier.fillMaxSize()
-            .padding(vertical = 16.dp)
-    //        .background(Color(0xFFA5BFCC)),
-        ,
-        //verticalArrangement = Arrangement.Center,
+            .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(25.dp))
@@ -134,8 +123,6 @@ fun OnSettings(showMap: MutableState<Boolean>) {
                     }
                 }
                 onCurrentLanguageChange(code)
-                (context as Activity).recreate()
-
             },
             selectedOption = when (pref.getLanguage()) {
                 "english" -> stringResource(R.string.english)
@@ -144,7 +131,6 @@ fun OnSettings(showMap: MutableState<Boolean>) {
             }
         )
         Spacer(modifier = Modifier.height(25.dp))
-
         selectedTempretureUnit?.let {
             CardView(
                 R.string.temperature_unit,
@@ -170,10 +156,7 @@ fun OnSettings(showMap: MutableState<Boolean>) {
                 }
             )
         }
-
         Spacer(modifier = Modifier.height(25.dp))
-
-
         CardView(
             R.string.edit_location,
             listOf(stringResource(R.string.gps), stringResource(R.string.map)),
@@ -196,9 +179,7 @@ fun OnSettings(showMap: MutableState<Boolean>) {
                 else -> stringResource(R.string.gps)
             }
         )
-
         Spacer(modifier = Modifier.height(25.dp))
-
         CardView(
             R.string.wind_speed_unit,
             listOf(

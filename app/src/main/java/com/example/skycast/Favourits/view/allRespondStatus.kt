@@ -80,7 +80,6 @@ fun OnSuccess(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = Color.Transparent
-        //      .background(Color(0xFFA5BFCC)),
         , snackbarHost = {
 
             if (showSnackbar.value && deletedItem.value != null) {
@@ -98,7 +97,7 @@ fun OnSuccess(
                                 deletedItem.value = null
                             }
                         ) {
-                            Text(stringResource(R.string.undo))
+                            Text(stringResource(R.string.undo), color = Color.Gray.copy(.5f) )
                         }
                     },
                     modifier = Modifier.padding(bottom = 80.dp)
@@ -112,7 +111,6 @@ fun OnSuccess(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-            //         .background(Color(0xFFA5BFCC))
         ) {
             if (!isConnected) {
                 Box(
@@ -161,7 +159,7 @@ fun OnSuccess(
                         Modifier.size(300.dp)
                     )
 
-                    Text(text = stringResource(R.string.no_selected_location_yet), fontSize = 30.sp)
+                    Text(text = stringResource(R.string.no_selected_location_yet),fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                 }
             } else {
 
@@ -199,7 +197,7 @@ fun OnSuccess(
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
                // containerColor = PrimaryContainer,
-                containerColor = Color.Gray.copy(alpha = 0.9f), // Slightly transparent
+                containerColor = Color.Gray.copy(alpha = 0.9f),
                 contentColor = Color.White
 
                 ) {

@@ -46,7 +46,7 @@ class Constant {
              val KELVIN  ="°K"
              val FAHRENHEIT  ="°F"
              val ARABIC= "Arabic"
-             val ENGLISH= "English"
+             val ENGLISH= "english"
              val GPS="GPS"
              val MAP= "MAP"
              val SELETED_LAT= "SELECTEDLAT"
@@ -54,23 +54,6 @@ class Constant {
              val IS_SELECTED_LOCATION="IS_SELECTED_LOCATION"
 
 
-
-
-         /*   val SELECTED_LAT: String="SELECTEDLAT"
-            val SELECTED_LONG: String= "SELECTED_LONG"
-            var TEMPERATURE_UNIT = R.string.temperature_unit
-            val WIND_SPEED = R.string.wind_speed_unit
-            val LANGUAGE = R.string.language
-            val LOCATION_SOURCE = R.string.edit_location
-            val METER_Sec = R.string.m_sec
-            val CELSIUS = R.string.celsius_c
-            val KELVIN = R.string.kelvin_k
-            val FAHRENHEIT = R.string.fahrenheit_f
-            val ARABIC = R.string.arabic
-            val ENGLISH = R.string.english
-            val GPS = R.string.gps
-            val MAP = R.string.map
-            val IS_SELECTED_LOCATION = "IS_SELECTED_LOCATION"*/
 
         }
     }

@@ -1,12 +1,10 @@
 package com.example.skycast.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.annotation.StringRes
 import com.example.skycast.data.dataClasses.LocationDataClass
 
-class SharedPrefrances private constructor(val context: Context) {
+class SharedPreferences private constructor(val context: Context) {
 
     private var sharedPreferences: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
@@ -19,11 +17,11 @@ class SharedPrefrances private constructor(val context: Context) {
 
     companion object {
         @Volatile
-        private var instance : SharedPrefrances? = null
+        private var instance : com.example.skycast.utils.SharedPreferences? = null
 
-        fun getInstance(context: Context) : SharedPrefrances {
+        fun getInstance(context: Context) : com.example.skycast.utils.SharedPreferences {
             return instance ?: synchronized(context){
-                val instance = SharedPrefrances(context)
+                val instance = SharedPreferences(context)
                 this.instance = instance
 
                 instance

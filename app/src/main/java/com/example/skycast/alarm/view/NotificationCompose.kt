@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.data.dataClasses.NotificationDataClass
-import com.example.skycast.home.view.formatNumbers
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

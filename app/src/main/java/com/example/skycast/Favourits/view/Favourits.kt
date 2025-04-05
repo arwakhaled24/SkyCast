@@ -1,17 +1,15 @@
 package com.example.skycast.Favourits.view
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -26,9 +24,10 @@ import com.example.skycast.R
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.LocationDataClass
 import com.example.skycast.home.view.Home
+import com.example.skycast.home.viewModel.HomeViewModel
 import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.utils.NetworkConnectivityObserver
-
+import com.example.skycast.utils.SharedPreferences
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -44,7 +43,7 @@ fun Favourits(
     val selectedLocation = remember { mutableStateOf<LocationDataClass?>(null) }
     val context = LocalContext.current
     val connectivityObserver = remember { NetworkConnectivityObserver(context) }
-    val isConnected by connectivityObserver.networkStatus.collectAsState(initial = true)
+    val isConnected by connectivityObserver.networkStatus.collectAsState(initial = false)
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
@@ -74,6 +73,7 @@ fun Favourits(
                         it.latitude,
                         it.longitude,
                         weatherViewModel,
+                        HomeViewModel()
                     )
                 }
             }
@@ -110,6 +110,19 @@ fun Favourits(
             }
         }
     }
+
+    BackHandler(
+        enabled = showDetails.value ||showMap.value,
+        onBack = {
+            showDetails.value = false
+            showMap.value=false
+            selectedLocation.value = null
+            weatherViewModel.getForecast(
+                lat = SharedPreferences.getInstance(context).getLat().toString(),
+                lon = SharedPreferences.getInstance(context).getLong().toString()
+            )
+        }
+    )
 }
 
 

@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
@@ -84,7 +85,6 @@ import java.util.concurrent.TimeUnit
 fun Alert(alrmViewModel: AlarmViewModel, currenTocationLat: String, currenTocationLong: String) {
     AlertScreen(alrmViewModel, currenTocationLat, currenTocationLong)
 }
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +109,6 @@ fun AlertScreen(
                 }.timeInMillis
                 return utcTimeMillis >= todayMillis
             }
-
             override fun isSelectableYear(year: Int): Boolean {
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 return year >= currentYear
@@ -122,7 +121,6 @@ fun AlertScreen(
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = false,
     )
-
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
@@ -134,7 +132,6 @@ fun AlertScreen(
     Scaffold(modifier = Modifier
         .fillMaxSize(),
         containerColor = Color.Transparent
-        //  .background(Color(0xFFA5BFCC)),
         , snackbarHost = {
             if (showSnackbar.value && deletedItem.value != null) {
                 LaunchedEffect(showSnackbar.value) {
@@ -143,7 +140,7 @@ fun AlertScreen(
                     deletedItem.value = null
                 }
                 Snackbar(
-                    action = {
+                 /*   action = {
                         TextButton(
                             onClick = {
                                 deletedItem.value?.let { alrmViewModel.addNotidication(it) }
@@ -153,7 +150,7 @@ fun AlertScreen(
                         ) {
                             Text(stringResource(R.string.undo))
                         }
-                    },
+                    },*/
                     modifier = Modifier.padding(bottom = 80.dp)
                 ) {
                     Text(stringResource(R.string.alarm_canceled))
@@ -163,7 +160,6 @@ fun AlertScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-            //          .background(Color(0xFFA5BFCC)),
         ) {
             if (notificationList.isEmpty()) {
                 Column(
@@ -177,13 +173,18 @@ fun AlertScreen(
                         contentDescription = "Empity List",
                         Modifier.size(300.dp)
                     )
-
-                    Text(text = stringResource(R.string.no_recorded_alerts_yet), fontSize = 30.sp)
-
+                    Text(text = stringResource(R.string.no_recorded_alerts_yet),fontWeight = FontWeight.Bold, fontSize = 30.sp, color = Color.White)
                 }
             } else {
                 val context = LocalContext.current
-                LazyColumn {
+                LazyColumn ( modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = 80.dp,
+                        start = 5.dp,
+                        end = 5.dp,
+                        bottom = 5.dp
+                    ),){
                     items(notificationList.size) { index ->
                         NotificationRow(
                             notificationList[index],
@@ -241,7 +242,7 @@ fun AlertScreen(
                         .width(50.dp)
                         .height(50.dp),
                     shape = RoundedCornerShape(20.dp),
-                     containerColor = Color.Gray.copy(alpha = 0.9f),
+                    containerColor = Color.Gray.copy(alpha = 0.9f),
                     contentColor = Color.White
                 ) {
                     Icon(imageVector = Icons.Filled.Add, contentDescription = "FAB", tint = Color.White)

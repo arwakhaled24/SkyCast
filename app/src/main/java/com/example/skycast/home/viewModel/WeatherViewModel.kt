@@ -11,7 +11,7 @@ import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.currentWeather.CurrentWeatherRespond
 import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.repository.WeatherRepository
-import com.example.skycast.utils.SharedPrefrances
+import com.example.skycast.utils.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
@@ -27,10 +27,10 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
     var forecast:MutableStateFlow<RespondStatus<ForecasteRespond>> = _forecast
 
     private val _lang = MutableLiveData<String>().apply {
-        value = if (SharedPrefrances.getInstance(context).getLanguage()
-            in listOf("english", "الانجليزية")) "en" else "ar"
+        value = if (SharedPreferences.getInstance(context).getLanguage()
+            in listOf("english", "الانجليزية","English")) "en" else "ar"
     }
-    val lang: LiveData<String> = _lang
+    private val lang: LiveData<String> = _lang
 
     fun getCurrentWeather(
         lat: String,
@@ -69,7 +69,7 @@ class WeatherViewModel(private val repository: WeatherRepository,context: Contex
     }
 
     fun updateLanguage(context: Context) {
-        _lang.value = if (SharedPrefrances.getInstance(context).getLanguage() in listOf("english", "الانجليزية")) "en" else "ar"
+        _lang.value = if (SharedPreferences.getInstance(context).getLanguage() in listOf("english", "الانجليزية")) "en" else "ar"
     }
 }
 

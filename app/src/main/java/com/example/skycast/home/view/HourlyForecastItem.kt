@@ -20,9 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
+import com.example.skycast.home.viewModel.HomeViewModel
 
 @Composable
-fun HourlyForecastItem(wearherItem: WeatherItem, time: Int, modifier: Modifier=Modifier) {
+fun HourlyForecastItem(wearherItem: WeatherItem, time: Int, modifier: Modifier=Modifier,homeViewModel: HomeViewModel) {
   val context= LocalContext.current
     val unit = getTemperatureSymbol(context)
     var timeInt = time
@@ -44,23 +45,23 @@ fun HourlyForecastItem(wearherItem: WeatherItem, time: Int, modifier: Modifier=M
             val am = time - 24
 
             Text(
-                text = if (time <= 12) stringResource(R.string.am, formatNumbers(
+                text = if (time <= 12) stringResource(R.string.am, homeViewModel.formatNumbers(
                     time.toDouble(),
                     context = context
                 ))
                 else if (time <= 24) stringResource(
-                    R.string.pm, formatNumbers(
+                    R.string.pm, homeViewModel.formatNumbers(
                         pm.toDouble(),
                         context = context
                     )
-                ) else stringResource(R.string.am, formatNumbers(
+                ) else stringResource(R.string.am, homeViewModel.formatNumbers(
                     time.toDouble(),
                     context = context
                 )),
                 color = Color.White
             )
-            Text(text = " ${ formatNumbers(
-                getTemperature(
+            Text(text = " ${ homeViewModel.formatNumbers(
+                homeViewModel.getTemperature(
                     wearherItem.main.temp,
                     context = context
                 ).toDouble(),

@@ -2,14 +2,10 @@ package com.example.skycast.home.view
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.skycast.R
 import com.example.skycast.data.dataClasses.forecastRespond.WeatherItem
 import com.example.skycast.utils.Constant
-import com.example.skycast.utils.SharedPrefrances
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.example.skycast.utils.SharedPreferences
 import java.util.Date
 import java.util.Locale
 
@@ -63,7 +59,7 @@ fun interpolateHourlyForecast(weatherItems: List<WeatherItem>): List<WeatherItem
 }
 
 fun getTemperatureSymbol(context: Context): String {
-    return when ( SharedPrefrances.getInstance(context).getTemperature()) {
+    return when ( SharedPreferences.getInstance(context).getTemperature()) {
         Constant.Companion.sharedPrefrances(context).CELSIUS-> context.getString(R.string.celsius_c)
         Constant.Companion.sharedPrefrances(context).FAHRENHEIT -> context.getString(R.string.fahrenheit_f)
         Constant.Companion.sharedPrefrances(context).KELVIN -> context.getString(R.string.kelvin_k)

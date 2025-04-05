@@ -6,4 +6,4 @@ import java.util.UUID
 
 
 @Entity("notification")
-data class NotificationDataClass( @PrimaryKey val id : UUID, val time:String, val date :String)
+data class NotificationDataClass(@PrimaryKey val id : UUID, val time:String, val date :String)

@@ -37,6 +37,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +51,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bumptech.glide.integration.ktx.ExperimentGlideFlows
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieAnimatable
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.skycast.Favourits.view.Favourits
 import com.example.skycast.Favourits.viewModel.FavouritsViewModel
 import com.example.skycast.Favourits.viewModel.MyFavFactory
@@ -61,17 +66,17 @@ import com.example.skycast.data.LocalData.LocalDataSource
 import com.example.skycast.data.LocalData.room.MyDatabase
 import com.example.skycast.data.RespondStatus
 import com.example.skycast.data.dataClasses.NavItem
-import com.example.skycast.data.dataClasses.forecastRespond.ForecasteRespond
 import com.example.skycast.data.remoteData.WearherRemoreDataSourse
 import com.example.skycast.data.remoteData.retrofit.RetrofitHelper
 import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.home.view.Home
+import com.example.skycast.home.viewModel.HomeViewModel
 import com.example.skycast.home.viewModel.MyFactory
 import com.example.skycast.home.viewModel.WeatherViewModel
 import com.example.skycast.settings.Setting
 import com.example.skycast.ui.theme.PrimaryContainer
 import com.example.skycast.ui.theme.SkyCastTheme
-import com.example.skycast.utils.SharedPrefrances
+import com.example.skycast.utils.SharedPreferences
 import com.example.skycast.utils.getMetaDataValue
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -92,6 +97,7 @@ class MainActivity : ComponentActivity() {
     lateinit var currentLocation: MutableState<Location>
     lateinit var selectedLong: MutableState<Double>
     lateinit var selectedLat: MutableState<Double>
+    lateinit var homeViewModel: HomeViewModel
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -120,6 +126,7 @@ class MainActivity : ComponentActivity() {
                 LocalDataSource(MyDatabase.getInstance(context = this).getDao())
             )
         )
+
         val apiKey = getMetaDataValue(this)
         if (!Places.isInitialized() && apiKey != null) {
             Places.initialize(applicationContext, apiKey)
@@ -131,22 +138,23 @@ class MainActivity : ComponentActivity() {
             favViewModel = viewModel(factory = myFavFactory)
             alarmViewModel = viewModel(factory = MyalarmFactory)
             currentLocation = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
+            homeViewModel= viewModel()
             SkyCastTheme {
                 MainScreen(
                     weatherViewModel,
                     favViewModel,
                     alarmViewModel,
                     selectedLong.value,
-                    selectedLat.value
+                    selectedLat.value,
+                    homeViewModel
                 )
             }
-
         }
     }
 
     override fun onStart() {
         super.onStart()
-        if (SharedPrefrances.getInstance(this).isSelectedLocation() == false) {
+        if (SharedPreferences.getInstance(this).isSelectedLocation() == false) {
             if (checkPermissions()) {
                 if (isLocationEnabled()) {
                     getCurrentLocation()
@@ -164,12 +172,7 @@ class MainActivity : ComponentActivity() {
                 )
                 Log.i("TAG", "onStart:fromLocation ")
             }
-        }/* else {
-            Log.i("TAG", "onStart:from shared ")
-            Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLat()}")
-            Log.i("TAG", "fromDhared: ${SharedPrefrances.getInstance(this).getLong()}")
-
-        }*/
+        }
     }
 
     private fun checkPermissions(): Boolean {
@@ -256,6 +259,7 @@ fun MainScreen(
     alarmViewModel: AlarmViewModel,
     selectedLong: Double,
     selectedLat: Double,
+    homeViewModel: HomeViewModel
 ) {
 
     val selectedIndex = remember { mutableStateOf(0) }
@@ -268,10 +272,17 @@ fun MainScreen(
     var selectedLo = selectedLong
     var selectedLa = selectedLat
     val context = LocalContext.current
-    if (SharedPrefrances.getInstance(context).isSelectedLocation()) {
-        selectedLa = SharedPrefrances.getInstance(context).getLat().toDouble()
-        selectedLo = SharedPrefrances.getInstance(context).getLong().toDouble()
+    if (SharedPreferences.getInstance(context).isSelectedLocation()) {
+        selectedLa = SharedPreferences.getInstance(context).getLat().toDouble()
+        selectedLo = SharedPreferences.getInstance(context).getLong().toDouble()
     }
+    weatherViewModel.getForecast(lat = selectedLa.toString(), lon = selectedLo.toString())
+    weatherViewModel.getCurrentWeather(lat = selectedLa.toString(), lon = selectedLo.toString(),)
+    val lottie= rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.stars))
+    val forecastState = weatherViewModel.forecast.collectAsState().value
+    var source= getDayNightBackground(weatherViewModel)
+
+
     Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
@@ -299,7 +310,6 @@ fun MainScreen(
                 }
             }
         ) {
-            val cotext = LocalContext.current
             AnimatedContent(targetState = selectedIndex.value, transitionSpec = {
                 slideIntoContainer(
                     animationSpec = tween(500, easing = EaseIn),
@@ -314,17 +324,23 @@ fun MainScreen(
                 weatherViewModel.updateLanguage(context)
                 Box {
                     Image(
-                        painter = painterResource(getDayNightBackground(weatherViewModel)?:R.drawable.day),
+                        painter = painterResource(source?:R.drawable.ihone_packgound),
                         contentDescription = "Background",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
+                    LottieAnimation( composition = lottie.value,
+                        modifier = Modifier.fillMaxSize(),
+                        iterations = LottieConstants.IterateForever,
+                        contentScale = ContentScale.FillBounds )
+
                     when (targetState) {
 
                         0 -> Home(
                             lat = selectedLo.toString(),
                             long = selectedLa.toString(),
                             weatherViewModel,
+                            homeViewModel
                         )
 
                         1 -> Favourits(
@@ -341,7 +357,6 @@ fun MainScreen(
                         3 -> Setting()
                     }
                 }
-
             }
         }
 }

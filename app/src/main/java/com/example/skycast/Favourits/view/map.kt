@@ -73,8 +73,6 @@ fun Map(
     Column{
 
         Box(modifier = Modifier.fillMaxSize()) {
-
-
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
@@ -123,7 +121,6 @@ fun Map(
                         fontSize = 16.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
-
                     if (address.value != "No Selected Location yet") {
                         Button(
                             onClick = {

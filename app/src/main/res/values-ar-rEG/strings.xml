@@ -45,4 +45,5 @@
     <string name="l">ص:%1$s°</string>
     <string name="h">ع:%1$s°</string>
     <string name="set_this_location">اختيار هذا الموقع</string>
+    <string name="l_o_a_d_i_n_g">تحميل</string>
 </resources>
