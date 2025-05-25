@@ -1,5 +1,4 @@
 
-https://github.com/user-attachments/assets/5a2e919c-0531-41ce-804d-8a8753145808
 # 🌦️ ScyCast
 
 **ScyCast** is a modern weather forecasting app that provides real-time weather data for today and the next 5 days. Designed with a clean and intuitive UI, it empowers users to track weather conditions anywhere in the world.
