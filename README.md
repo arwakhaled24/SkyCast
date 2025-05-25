@@ -15,11 +15,11 @@
   Save and manage favorite locations for quick access.
 
 * ⏰ **Weather Alarm Notifications**  
-  Set alarms to receive daily weather updates for a specific location and time.
+  Set alarms to receive weather updates for a specific location and time.
 
 * ⚙️ **Customizable Settings**
-  * Choose temperature units: Celsius or Fahrenheit  
-  * Choose wind speed units: m/s, km/h, or mph  
+  * Choose temperature units: Celsius, Fahrenheit, or Kelvin 
+  * Choose wind speed units: m/s, or mph  
   * Set app language
 
 * 📍 **Manual Location Setting**  
@@ -27,13 +27,15 @@
 
 ## 🛠️ Technologies Used
 
-* **Programming Language**: Java  
+* **Programming Language**: Kotlin
+* **UI Framework**: Jetpack Compose 
 * **Architecture**: MVVM  
 * **Networking**: Retrofit, OkHttp
 * **Asynchronous Programming**: Coroutines, Flow
 * **Location Services**: Google Maps API, FusedLocationProviderClient  
 * **Push Notifications**: WorkManager 
 * **Local Storage**: Room Database  
+* **Animations**: Jetpack Compose Animation APIs, Lottie
 
 
 ## 📽️ Demo
